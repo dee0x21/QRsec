@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="color-scheme" content="dark">
+  <title>QRsec</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #101010;
+      --border: #2c2c2c;
+      --border-strong: #565656;
+      --text: #f2f2f2;
+      --muted: #8a8a8a;
+      --invert-bg: #f2f2f2;
+      --invert-fg: #0a0a0a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 1rem;
+    }
+
+    ::selection { background: var(--text); color: var(--bg); }
+
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 1px solid var(--text);
+      outline-offset: 2px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 460px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      padding: 1.5rem;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--text);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .lang-switch {
+      display: flex;
+      border: 1px solid var(--border-strong);
+      background: var(--bg);
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.25rem 0.45rem;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: all 0.15s ease;
+    }
+
+    .lang-btn:not(:last-child) {
+      border-right: 1px solid var(--border-strong);
+    }
+
+    .lang-btn.active {
+      background: var(--invert-bg);
+      color: var(--invert-fg);
+    }
+
+    .badge-bar {
+      margin-top: -0.75rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      padding: 0.2rem 0.45rem;
+      border: 1px solid var(--border-strong);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.45rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .field-group { margin-bottom: 1.25rem; }
+
+    textarea, input[type="text"], input[type="password"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 0.75rem;
+      outline: none;
+    }
+
+    textarea:focus, input:focus { border-color: var(--text); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .input-with-action {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-with-action input { padding-right: 2.8rem; }
+
+    .btn-toggle-eye {
+      position: absolute;
+      right: 0.4rem;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0.45rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-toggle-eye:hover { color: var(--text); }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-warning { color: var(--text); font-weight: 700; }
+
+    .btn-row {
+      display: flex;
+      gap: 1px;
+      margin-top: 0.4rem;
+      background: var(--border-strong);
+      border: 1px solid var(--border-strong);
+    }
+
+    .btn-sm {
+      flex: 1;
+      padding: 0.55rem 0.2rem;
+      font-size: 0.7rem;
+      font-family: inherit;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      min-height: 36px;
+      background: var(--surface);
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      text-decoration: none;
+    }
+    .btn-sm:hover { background: var(--text); color: var(--invert-fg); }
+
+    .btn-primary {
+      width: 100%;
+      min-height: 48px;
+      margin-top: 0.25rem;
+      background: var(--invert-bg);
+      color: var(--invert-fg);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-primary:hover { box-shadow: 4px 4px 0 var(--border-strong); }
+    .btn-primary:active { transform: translate(2px, 2px); box-shadow: none; }
+    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+
+    .btn-danger { color: var(--text); }
+    .btn-danger:hover { background: var(--invert-bg); color: var(--invert-fg); }
+
+    #qr-output {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border-strong);
+    }
+
+    .qr-frame {
+      background: #fff;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      max-width: 100%;
+      box-shadow: 8px 8px 0 var(--border);
+    }
+
+    .qr-frame canvas,
+    .qr-frame img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .tap-box {
+      width: 100%;
+      min-height: 110px;
+      background: var(--bg);
+      border: 1px dashed var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: none;
+    }
+
+    .tap-box.revealed {
+      border-style: solid;
+      border-color: var(--text);
+      color: var(--text);
+      word-break: break-all;
+      user-select: text;
+      -webkit-user-select: text;
+      touch-action: auto;
+    }
+
+    .status-msg {
+      margin-top: 0.75rem;
+      padding: 0.6rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.03em;
+      text-align: center;
+    }
+
+    .status-error { background: var(--invert-bg); color: var(--invert-fg); font-weight: 700; }
+    .status-info { border: 1px solid var(--border-strong); color: var(--muted); }
+
+    .nav-link {
+      display: block;
+      margin-top: 1.25rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-decoration: underline;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+    }
+    .nav-link:hover { color: var(--text); }
+
+    .app-footer {
+      margin-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 0.75rem;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .footer-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      -webkit-user-select: none;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0.25rem 0;
+    }
+
+    .footer-summary::-webkit-details-marker { display: none; }
+    .footer-summary:hover { color: var(--text); }
+    .summary-icon { transition: transform 0.2s ease; }
+    .app-footer[open] .summary-icon { transform: rotate(180deg); }
+
+    .footer-content {
+      padding-top: 0.75rem;
+      line-height: 1.45;
+      letter-spacing: 0.02em;
+    }
+
+    .footer-content p { margin-bottom: 0.5rem; }
+    .footer-content p:last-child { margin-bottom: 0; }
+    .footer-content code {
+      color: var(--text);
+      background: var(--bg);
+      padding: 0.1rem 0.25rem;
+      border: 1px solid var(--border);
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-left">
+      <h1>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M4 4h6v6H4V4zm2 2v2h2V6H6zm8-2h6v6h-6V4zm2 2v2h2V6h-2zM4 14h6v6H4v-6zm2 2v2h2v-2H6zm10 0h2v2h-2v-2zm-2 2h2v2h-2v-2zm4 0h2v2h-2v-2zm-2-4h2v2h-2v-2zm4-2h2v2h-2v-2z"/>
+        </svg>
+        QRsec
+      </h1>
+    </div>
+    <div class="lang-switch" role="group" aria-label="Language selection">
+      <button type="button" class="lang-btn active" data-lang="ru">RU</button>
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+      <button type="button" class="lang-btn" data-lang="zh">ZH</button>
+    </div>
+  </header>
+
+  <div class="badge-bar">
+    <span class="badge" id="env-badge" data-i18n="env_badge">безопасная передача данных</span>
+  </div>
+
+  <section id="sender-ui">
+    <div class="field-group">
+      <label for="plain-input" data-i18n="label_plain">Данные (UTF-8)</label>
+      <textarea id="plain-input" data-i18n-ph="ph_plain" placeholder="Что шифруем?"></textarea>
+      <div class="meta-row">
+        <span id="bytes-counter">0 / 1024 байт</span>
+        <span id="qr-hint" data-i18n="qr_hint_empty">QR: внесите данные</span>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="pass-input" data-i18n="label_pass">Код доступа</label>
+      <div class="input-with-action">
+        <input type="password" id="pass-input" data-i18n-ph="ph_pass" placeholder="Код или фраза" autocomplete="new-password">
+        <button type="button" class="btn-toggle-eye" id="toggle-pass-btn" title="Показать/скрыть">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn-sm" id="gen-pin-6">PIN 6</button>
+        <button type="button" class="btn-sm" id="gen-pin-8">PIN 8</button>
+        <button type="button" class="btn-sm" id="gen-word-8">Text PIN</button>
+      </div>
+    </div>
+
+    <button type="button" class="btn-primary" id="btn-build" data-i18n="btn_build">Сформировать QR</button>
+
+    <div id="sender-error" class="status-msg status-error hidden"></div>
+
+    <div id="qr-output" class="hidden">
+      <div class="qr-frame" id="qr-target"></div>
+      
+      <div class="btn-row" style="width: 100%; margin-top: 1rem;">
+        <button type="button" class="btn-sm" id="btn-download-qr">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span data-i18n="btn_download_qr">Скачать QR</span>
+        </button>
+        <button type="button" class="btn-sm" id="btn-share-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+          <span id="btn-share-text" data-i18n="btn_share_link">Поделиться ссылкой</span>
+        </button>
+      </div>
+
+      <div class="meta-row" style="width:100%; margin-top:0.75rem;">
+        <span id="timer-sender">Сброс через: 60 с</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="receiver-ui" class="hidden">
+    <div class="field-group">
+      <label for="unlock-code" data-i18n="label_unlock">Код доступа к данным</label>
+      <div class="input-with-action">
+        <input type="password" id="unlock-code" data-i18n-ph="ph_unlock" placeholder="Введите код" autocomplete="current-password">
+        <button type="button" class="btn-toggle-eye" id="toggle-unlock-btn" title="Показать/скрыть">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <button type="button" class="btn-primary" id="btn-decrypt" data-i18n="btn_decrypt">Расшифровать</button>
+
+    <div id="receiver-msg" class="status-msg hidden"></div>
+
+    <div id="reveal-area" class="field-group hidden" style="margin-top:1.25rem;">
+      <label data-i18n="label_hold">Удерживайте для просмотра (Tap & Hold)</label>
+      <div class="tap-box" id="secret-box" data-i18n="tap_to_view">Нажмите и удерживайте</div>
+      <div class="btn-row" style="margin-top:0.75rem;">
+        <button type="button" class="btn-sm" id="btn-copy-secret">
+          <span id="btn-copy-text" data-i18n="btn_copy">Копировать в буфер</span>
+        </button>
+        <button type="button" class="btn-sm btn-danger" id="btn-purge" data-i18n="btn_purge">Удалить сейчас</button>
+      </div>
+      <div class="meta-row" style="margin-top:0.5rem;">
+        <span id="timer-receiver">Уничтожение через: 30 с</span>
+      </div>
+    </div>
+
+    <a href="javascript:void(0)" class="nav-link" id="btn-switch-to-sender" data-i18n="btn_switch_sender">Создать свой защищенный QRsec</a>
+  </section>
+
+  <details class="app-footer">
+    <summary class="footer-summary">
+      <span data-i18n="footer_summary">Безопасность и архитектура</span>
+      <svg class="summary-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </summary>
+    <div class="footer-content">
+      <p id="footer-p1">
+        <strong>Zero-Knowledge & Client-Side:</strong> Сервер не хранит и не видит ваши секреты. Все операции происходят исключительно внутри браузера через аппаратный Web Crypto API.
+      </p>
+      <p id="footer-p2">
+        <strong>Сквозное шифрование:</strong> Ключ формируется функцией PBKDF2 (SHA-256, 600&nbsp;000 итераций) с криптографической солью, а данные шифруются по стандарту AES-GCM (256 бит).
+      </p>
+      <p id="footer-p3">
+        <strong>Почему сервер ничего не получает:</strong> Зашифрованный пакет передаётся в URL через хэш-фрагмент (после символа <code>#</code>). По стандартам HTTP эта часть URL никогда не отправляется на сервер и не попадает в сетевые логи.
+      </p>
+    </div>
+  </details>
+</div>
+
+<!-- Локальная проверенная библиотека QR -->
+<script src="./qrcode.min.js"></script>
+
+<script type="module">
+const I18N_DATA = {
+  ru: {
+    env_badge: "безопасная передача данных",
+    label_plain: "Данные (UTF-8)",
+    ph_plain: "Что шифруем?",
+    qr_hint_empty: "QR: внесите данные",
+    qr_hint_opt: "QR: оптимальный",
+    qr_hint_dense: "QR: плотный",
+    bytes_unit: "байт",
+    label_pass: "Код доступа",
+    ph_pass: "Код или фраза",
+    btn_build: "Сформировать QR",
+    btn_encrypting: "Шифрование...",
+    btn_download_qr: "Скачать QR",
+    btn_share_link: "Поделиться ссылкой",
+    btn_copied: "Скопировано!",
+    timer_sender: "Сброс через: {s} с",
+    label_unlock: "Код доступа к данным",
+    ph_unlock: "Введите код",
+    btn_decrypt: "Расшифровать",
+    btn_decrypting: "Дешифрование...",
+    label_hold: "Удерживайте для просмотра (Tap & Hold)",
+    tap_to_view: "Нажмите и удерживайте",
+    btn_copy: "Копировать в буфер",
+    btn_purge: "Удалить сейчас",
+    timer_receiver: "Уничтожение через: {s} с",
+    btn_switch_sender: "Создать свой защищенный QRsec",
+    footer_summary: "Безопасность и архитектура",
+    footer_p1: "<strong>Zero-Knowledge & Client-Side:</strong> Сервер не хранит и не видит ваши секреты. Все операции происходят исключительно внутри браузера через аппаратный Web Crypto API.",
+    footer_p2: "<strong>Сквозное шифрование:</strong> Ключ формируется функцией PBKDF2 (SHA-256, 600&nbsp;000 итераций) с криптографической солью, а данные шифруются по стандарту AES-GCM (256 бит).",
+    footer_p3: "<strong>Почему сервер ничего не получает:</strong> Зашифрованный пакет передаётся в URL через хэш-фрагмент (после символа <code>#</code>). По стандартам HTTP эта часть URL никогда не отправляется на сервер и не попадает в сетевые логи.",
+    err_empty: "Укажите данные и код доступа.",
+    err_crypto_api: "Ошибка: Web Crypto API доступен только в безопасном контексте (HTTPS или localhost).",
+    err_file_protocol: "Внимание: файл открыт локально (file://). Смартфон не сможет открыть этот URL. Запустите приложение через локальный веб-сервер (http://...) или загрузите на хостинг.",
+    err_decrypt_fail: "Неверный код доступа или повреждённые данные.",
+    err_limit: "Превышен лимит (1024 байта)",
+    msg_purged: "Данные уничтожены из памяти.",
+    share_title: "QRsec Зашифрованное сообщение",
+    share_text: "Ссылка для получения данных:",
+    prompt_copy: "Скопируйте ссылку вручную:"
+  },
+  en: {
+    env_badge: "secure data transfer",
+    label_plain: "Data (UTF-8)",
+    ph_plain: "What to encrypt?",
+    qr_hint_empty: "QR: enter data",
+    qr_hint_opt: "QR: optimal",
+    qr_hint_dense: "QR: dense",
+    bytes_unit: "bytes",
+    label_pass: "Passcode",
+    ph_pass: "PIN or passphrase",
+    btn_build: "Generate QR",
+    btn_encrypting: "Encrypting...",
+    btn_download_qr: "Download QR",
+    btn_share_link: "Share Link",
+    btn_copied: "Copied!",
+    timer_sender: "Reset in: {s} s",
+    label_unlock: "Data Access Code",
+    ph_unlock: "Enter code",
+    btn_decrypt: "Decrypt",
+    btn_decrypting: "Decrypting...",
+    label_hold: "Hold to reveal (Tap & Hold)",
+    tap_to_view: "Press & hold to view",
+    btn_copy: "Copy to Clipboard",
+    btn_purge: "Purge now",
+    timer_receiver: "Destruction in: {s} s",
+    btn_switch_sender: "Create your own secure QRsec",
+    footer_summary: "Security & Architecture",
+    footer_p1: "<strong>Zero-Knowledge & Client-Side:</strong> The server never sees or stores your secrets. All operations run solely inside your browser using the native Web Crypto API.",
+    footer_p2: "<strong>End-to-End Encryption:</strong> The key is derived using PBKDF2 (SHA-256, 600,000 iterations) with cryptographic salt, and data is protected with AES-GCM (256-bit).",
+    footer_p3: "<strong>Why the server receives nothing:</strong> The encrypted payload is passed in the URL via a hash fragment (after <code>#</code>). Per HTTP standards, this is never sent over the wire or logged by servers.",
+    err_empty: "Please provide both data and access code.",
+    err_crypto_api: "Error: Web Crypto API is only available in secure contexts (HTTPS or localhost).",
+    err_file_protocol: "Warning: File opened locally (file://). Phones cannot reach this address. Please serve over HTTP(S).",
+    err_decrypt_fail: "Invalid passcode or corrupted payload.",
+    err_limit: "Data limit exceeded (1024 bytes)",
+    msg_purged: "Data has been purged from memory.",
+    share_title: "QRsec Encrypted Message",
+    share_text: "Secure link to decrypt data:",
+    prompt_copy: "Copy the link manually:"
+  },
+  zh: {
+    env_badge: "安全数据传输",
+    label_plain: "数据 (UTF-8)",
+    ph_plain: "输入需要加密的内容",
+    qr_hint_empty: "QR: 请输入内容",
+    qr_hint_opt: "QR: 密度最佳",
+    qr_hint_dense: "QR: 密度较高",
+    bytes_unit: "字节",
+    label_pass: "访问密码",
+    ph_pass: "密码或口令",
+    btn_build: "生成安全二维码",
+    btn_encrypting: "正在加密...",
+    btn_download_qr: "保存二维码",
+    btn_share_link: "分享链接",
+    btn_copied: "已复制！",
+    timer_sender: "倒计时重置: {s} 秒",
+    label_unlock: "数据解密密码",
+    ph_unlock: "请输入解密密码",
+    btn_decrypt: "解密数据",
+    btn_decrypting: "正在解密...",
+    label_hold: "按住查看内容 (Tap & Hold)",
+    tap_to_view: "按住以查看明文",
+    btn_copy: "复制到剪贴板",
+    btn_purge: "立即销毁",
+    timer_receiver: "安全销毁倒计时: {s} 秒",
+    btn_switch_sender: "创建属于您的 QRsec 密文",
+    footer_summary: "安全性与技术架构",
+    footer_p1: "<strong>零知识与纯客户端架构 (Zero-Knowledge):</strong> 服务器不存储也不会获取您的任何私密数据。所有密码学运算均在浏览器内通过原生 Web Crypto API 硬件加速完成。",
+    footer_p2: "<strong>端到端高强度加密:</strong> 密钥采用 PBKDF2（SHA-256，600,000 次加盐哈希迭代）生成，正文采用标准的 AES-GCM (256-bit) 对称加密。",
+    footer_p3: "<strong>为什么服务器无法感知:</strong> 密文仅存放在 URL 的哈希片段（即 <code>#</code> 之后）中。遵循 HTTP 规范，此部分绝不会上传至服务器或进入任何网络访问日志。",
+    err_empty: "请同时输入数据和访问密码。",
+    err_crypto_api: "错误：Web Crypto API 仅在安全上下文（HTTPS 或 localhost）中可用。",
+    err_file_protocol: "提示：当前为本地直接打开 (file://)。移动端无法访问此链接，请通过本地 Web 服务器或 HTTPS 托管使用。",
+    err_decrypt_fail: "密码错误或密文数据已损坏。",
+    err_limit: "超出最大数据上限 (1024 字节)",
+    msg_purged: "数据已从内存中彻底销毁。",
+    share_title: "QRsec 加密信息",
+    share_text: "用于提取加密数据的链接：",
+    prompt_copy: "请手动复制链接："
+  }
+};
+
+let currentLang = 'ru';
+const savedLang = localStorage.getItem('qrsec_lang');
+if (savedLang && I18N_DATA[savedLang]) {
+  currentLang = savedLang;
+} else {
+  const navLang = (navigator.language || '').toLowerCase();
+  if (navLang.startsWith('zh')) currentLang = 'zh';
+  else if (navLang.startsWith('en')) currentLang = 'en';
+}
+
+function t(key, vars = {}) {
+  let str = (I18N_DATA[currentLang] && I18N_DATA[currentLang][key]) || I18N_DATA['ru'][key] || key;
+  for (const [k, v] of Object.entries(vars)) {
+    str = str.replace(`{${k}}`, v);
+  }
+  return str;
+}
+
+function applyLocale() {
+  document.documentElement.lang = currentLang;
+  
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    el.innerHTML = t(k);
+  });
+
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const k = el.getAttribute('data-i18n-ph');
+    el.setAttribute('placeholder', t(k));
+  });
+
+  document.getElementById('footer-p1').innerHTML = t('footer_p1');
+  document.getElementById('footer-p2').innerHTML = t('footer_p2');
+  document.getElementById('footer-p3').innerHTML = t('footer_p3');
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
+  });
+
+  updateBytesCounter();
+  if (secretBox && !secretBox.classList.contains('revealed')) {
+    secretBox.innerText = t('tap_to_view');
+  }
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.onclick = () => {
+    const l = btn.getAttribute('data-lang');
+    if (l && I18N_DATA[l]) {
+      currentLang = l;
+      localStorage.setItem('qrsec_lang', l);
+      applyLocale();
+    }
+  };
+});
+
+const B64 = {
+  encode: (buf) => {
+    const bin = String.fromCharCode(...new Uint8Array(buf));
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  },
+  decode: (str) => {
+    let s = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    const bin = atob(s);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes.buffer;
+  }
+};
+
+async function deriveKey(passphrase, salt) {
+  const enc = new TextEncoder();
+  const rawKey = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(passphrase),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations: 600000,
+      hash: 'SHA-256'
+    },
+    rawKey,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function encrypt(secretText, passphrase) {
+  const enc = new TextEncoder();
+  const secretBytes = enc.encode(secretText);
+  if (secretBytes.length > 1024) throw new Error(t('err_limit'));
+
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(passphrase, salt);
+
+  const ctBuffer = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    secretBytes
+  );
+
+  const ctBytes = new Uint8Array(ctBuffer);
+  const packet = new Uint8Array(1 + 16 + 12 + ctBytes.length);
+  packet[0] = 0x01;
+  packet.set(salt, 1);
+  packet.set(iv, 1 + 16);
+  packet.set(ctBytes, 1 + 16 + 12);
+
+  return 'nd1.' + B64.encode(packet.buffer);
+}
+
+async function decrypt(payloadStr, passphrase) {
+  if (!payloadStr.startsWith('nd1.')) throw new Error('InvalidKeyError');
+  const rawB64 = payloadStr.slice(4);
+  const packet = new Uint8Array(B64.decode(rawB64));
+
+  if (packet.length < 1 + 16 + 12 + 16) throw new Error('InvalidKeyError');
+  if (packet[0] !== 0x01) throw new Error('InvalidKeyError');
+
+  const salt = packet.subarray(1, 17);
+  const iv = packet.subarray(17, 29);
+  const ct = packet.subarray(29);
+
+  const key = await deriveKey(passphrase, salt);
+  try {
+    const ptBuffer = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      ct
+    );
+    return new TextDecoder().decode(ptBuffer);
+  } catch {
+    throw new Error('InvalidKeyError');
+  }
+}
+
+let capturedPayload = null;
+if (window.location.hash.startsWith('#nd1.')) {
+  capturedPayload = window.location.hash.substring(1);
+}
+
+const senderUi = document.getElementById('sender-ui');
+const receiverUi = document.getElementById('receiver-ui');
+const plainInput = document.getElementById('plain-input');
+const passInput = document.getElementById('pass-input');
+const togglePassBtn = document.getElementById('toggle-pass-btn');
+const bytesCounter = document.getElementById('bytes-counter');
+const qrHint = document.getElementById('qr-hint');
+const btnBuild = document.getElementById('btn-build');
+const senderError = document.getElementById('sender-error');
+const qrOutput = document.getElementById('qr-output');
+const qrTarget = document.getElementById('qr-target');
+const btnDownloadQr = document.getElementById('btn-download-qr');
+const btnShareLink = document.getElementById('btn-share-link');
+const btnShareText = document.getElementById('btn-share-text');
+const timerSender = document.getElementById('timer-sender');
+
+const unlockCode = document.getElementById('unlock-code');
+const toggleUnlockBtn = document.getElementById('toggle-unlock-btn');
+const btnDecrypt = document.getElementById('btn-decrypt');
+const receiverMsg = document.getElementById('receiver-msg');
+const revealArea = document.getElementById('reveal-area');
+const secretBox = document.getElementById('secret-box');
+const btnCopySecret = document.getElementById('btn-copy-secret');
+const btnCopyText = document.getElementById('btn-copy-text');
+const btnPurge = document.getElementById('btn-purge');
+const timerReceiver = document.getElementById('timer-receiver');
+const btnSwitchToSender = document.getElementById('btn-switch-to-sender');
+
+let generatedUrl = '';
+let activeSecret = null;
+let senderTimerId = null;
+let receiverTimerId = null;
+let senderTimeLeft = 0;
+let receiverTimeLeft = 0;
+
+function toggleFieldVisibility(inputEl) {
+  inputEl.type = inputEl.type === 'password' ? 'text' : 'password';
+}
+
+togglePassBtn.onclick = () => toggleFieldVisibility(passInput);
+toggleUnlockBtn.onclick = () => toggleFieldVisibility(unlockCode);
+
+passInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') btnBuild.click();
+});
+
+unlockCode.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') btnDecrypt.click();
+});
+
+function updateBytesCounter() {
+  const bytes = new TextEncoder().encode(plainInput.value).length;
+  bytesCounter.innerText = `${bytes} / 1024 ${t('bytes_unit')}`;
+  if (bytes === 0) {
+    bytesCounter.classList.remove('meta-warning');
+    qrHint.innerText = t('qr_hint_empty');
+  } else if (bytes > 768) {
+    bytesCounter.classList.add('meta-warning');
+    qrHint.innerText = t('qr_hint_dense');
+  } else {
+    bytesCounter.classList.remove('meta-warning');
+    qrHint.innerText = t('qr_hint_opt');
+  }
+}
+
+plainInput.addEventListener('input', updateBytesCounter);
+
+function genCryptoPin(len) {
+  const chars = '0123456789';
+  const arr = new Uint8Array(len);
+  crypto.getRandomValues(arr);
+  passInput.type = 'text';
+  return Array.from(arr, b => chars[b % chars.length]).join('');
+}
+
+document.getElementById('gen-pin-6').onclick = () => { passInput.value = genCryptoPin(6); };
+document.getElementById('gen-pin-8').onclick = () => { passInput.value = genCryptoPin(8); };
+
+document.getElementById('gen-word-8').onclick = () => {
+  const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+  const arr = new Uint8Array(10);
+  crypto.getRandomValues(arr);
+  passInput.type = 'text';
+  passInput.value = `${Array.from(arr.slice(0, 5), b => chars[b % chars.length]).join('')}-${Array.from(arr.slice(5, 10), b => chars[b % chars.length]).join('')}`;
+};
+
+btnBuild.onclick = async () => {
+  senderError.classList.add('hidden');
+  const text = plainInput.value;
+  const pass = passInput.value;
+
+  if (!text.trim() || !pass) {
+    senderError.innerText = t('err_empty');
+    senderError.classList.remove('hidden');
+    return;
+  }
+
+  if (!window.crypto || !window.crypto.subtle) {
+    senderError.innerText = t('err_crypto_api');
+    senderError.classList.remove('hidden');
+    return;
+  }
+
+  if (window.location.protocol === 'file:') {
+    senderError.innerText = t('err_file_protocol');
+    senderError.classList.remove('hidden');
+    return;
+  }
+
+  btnBuild.disabled = true;
+  btnBuild.innerText = t('btn_encrypting');
+
+  try {
+    const payload = await encrypt(text, pass);
+    generatedUrl = `${window.location.origin}${window.location.pathname}#${payload}`;
+    
+    qrTarget.innerHTML = '';
+    new QRCode(qrTarget, {
+      text: generatedUrl,
+      width: 256,
+      height: 256,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.M
+    });
+
+    qrOutput.classList.remove('hidden');
+    plainInput.value = '';
+    passInput.value = '';
+    updateBytesCounter();
+
+    startSenderTimer(60);
+  } catch (err) {
+    senderError.innerText = err.message || t('err_decrypt_fail');
+    senderError.classList.remove('hidden');
+  } finally {
+    btnBuild.disabled = false;
+    btnBuild.innerText = t('btn_build');
+  }
+};
+
+btnDownloadQr.onclick = () => {
+  const canvas = qrTarget.querySelector('canvas');
+  const img = qrTarget.querySelector('img');
+  
+  const a = document.createElement('a');
+  a.download = 'QRsec.png';
+
+  if (canvas) {
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  } else if (img && img.src) {
+    a.href = img.src;
+    a.click();
+  }
+};
+
+btnShareLink.onclick = async () => {
+  if (!generatedUrl) return;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: t('share_title'),
+        text: t('share_text'),
+        url: generatedUrl
+      });
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+    }
+  }
+
+  try {
+    await navigator.clipboard.writeText(generatedUrl);
+    btnShareText.innerText = t('btn_copied');
+    setTimeout(() => { btnShareText.innerText = t('btn_share_link'); }, 2000);
+  } catch {
+    prompt(t('prompt_copy'), generatedUrl);
+  }
+};
+
+function startSenderTimer(sec) {
+  clearInterval(senderTimerId);
+  senderTimeLeft = sec;
+  timerSender.innerText = t('timer_sender', { s: senderTimeLeft });
+  senderTimerId = setInterval(() => {
+    senderTimeLeft--;
+    timerSender.innerText = t('timer_sender', { s: senderTimeLeft });
+    if (senderTimeLeft <= 0) {
+      clearInterval(senderTimerId);
+      qrTarget.innerHTML = '';
+      qrOutput.classList.add('hidden');
+      generatedUrl = '';
+    }
+  }, 1000);
+}
+
+if (capturedPayload) {
+  senderUi.classList.add('hidden');
+  receiverUi.classList.remove('hidden');
+}
+
+btnSwitchToSender.onclick = () => {
+  try {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  } catch {}
+  capturedPayload = null;
+  receiverUi.classList.add('hidden');
+  senderUi.classList.remove('hidden');
+};
+
+btnDecrypt.onclick = async () => {
+  receiverMsg.classList.add('hidden');
+  const code = unlockCode.value;
+  if (!code) return;
+
+  btnDecrypt.disabled = true;
+  btnDecrypt.innerText = t('btn_decrypting');
+
+  try {
+    activeSecret = await decrypt(capturedPayload, code);
+    
+    try {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    } catch {}
+
+    unlockCode.value = '';
+    revealArea.classList.remove('hidden');
+    btnDecrypt.classList.add('hidden');
+    unlockCode.disabled = true;
+    startReceiverTimer(30);
+  } catch {
+    receiverMsg.innerText = t('err_decrypt_fail');
+    receiverMsg.className = 'status-msg status-error';
+    receiverMsg.classList.remove('hidden');
+  } finally {
+    btnDecrypt.disabled = false;
+    btnDecrypt.innerText = t('btn_decrypt');
+  }
+};
+
+function showSecret() {
+  if (!activeSecret) return;
+  secretBox.innerText = activeSecret;
+  secretBox.classList.add('revealed');
+}
+
+function hideSecret() {
+  secretBox.innerText = t('tap_to_view');
+  secretBox.classList.remove('revealed');
+}
+
+secretBox.addEventListener('pointerdown', (e) => { 
+  e.preventDefault(); 
+  showSecret(); 
+});
+secretBox.addEventListener('contextmenu', (e) => e.preventDefault());
+window.addEventListener('pointerup', hideSecret);
+window.addEventListener('pointercancel', hideSecret);
+
+btnCopySecret.onclick = async () => {
+  if (!activeSecret) return;
+  const copiedValue = activeSecret;
+  await navigator.clipboard.writeText(copiedValue);
+  btnCopyText.innerText = t('btn_copied');
+  setTimeout(() => { btnCopyText.innerText = t('btn_copy'); }, 2000);
+
+  setTimeout(async () => {
+    try {
+      const current = await navigator.clipboard.readText();
+      if (current === copiedValue) {
+        await navigator.clipboard.writeText('');
+      }
+    } catch {}
+  }, 45000);
+};
+
+function purgeData() {
+  activeSecret = null;
+  capturedPayload = null;
+  try {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  } catch {}
+  clearInterval(receiverTimerId);
+  revealArea.classList.add('hidden');
+  receiverMsg.innerText = t('msg_purged');
+  receiverMsg.className = 'status-msg status-info';
+  receiverMsg.classList.remove('hidden');
+}
+
+btnPurge.onclick = purgeData;
+
+function startReceiverTimer(sec) {
+  clearInterval(receiverTimerId);
+  receiverTimeLeft = sec;
+  timerReceiver.innerText = t('timer_receiver', { s: receiverTimeLeft });
+  receiverTimerId = setInterval(() => {
+    receiverTimeLeft--;
+    timerReceiver.innerText = t('timer_receiver', { s: receiverTimeLeft });
+    if (receiverTimeLeft <= 0) purgeData();
+  }, 1000);
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) hideSecret();
+});
+window.addEventListener('blur', hideSecret);
+
+// Инициализация выбранного языка
+applyLocale();
+</script>
+</body>
+</html>
