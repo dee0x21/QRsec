@@ -349,6 +349,47 @@
       border: 1px solid var(--border);
     }
 
+    .mode-switch { margin-bottom: 1.25rem; }
+
+    .btn-sm.active { background: var(--invert-bg); color: var(--invert-foreground); }
+
+    input[type="file"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.8rem;
+      padding: 0.65rem;
+    }
+
+    input[type="file"]::file-selector-button {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.45rem 0.8rem;
+      cursor: pointer;
+      margin-right: 0.6rem;
+    }
+
+    input[type="file"]::file-selector-button:hover { background: var(--text); color: var(--invert-foreground); }
+
+    .progress {
+      width: 100%;
+      height: 14px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg);
+      margin-top: 0.75rem;
+    }
+
+    .progress > div { height: 100%; width: 0%; background: var(--text); transition: width 0.2s linear; }
+
+    textarea[readonly] { color: var(--muted); font-size: 0.7rem; word-break: break-all; min-height: 64px; }
+
     .hidden { display: none !important; }
   </style>
 </head>
@@ -375,6 +416,12 @@
     <span class="badge" id="env-badge" data-i18n="env_badge">безопасная передача данных</span>
   </div>
 
+  <div class="btn-row mode-switch" role="tablist" aria-label="Mode">
+    <button type="button" class="btn-sm active" id="tab-text" data-i18n="tab_text">Текст</button>
+    <button type="button" class="btn-sm" id="tab-file" data-i18n="tab_file">Файл</button>
+  </div>
+
+  <section id="text-mode">
   <section id="sender-ui">
     <div class="field-group">
       <label for="plain-input" data-i18n="label_plain">Данные (UTF-8)</label>
@@ -471,6 +518,91 @@
 
     <a href="javascript:void(0)" class="nav-link" id="btn-switch-to-sender" data-i18n="btn_switch_sender">Создать свой защищенный QRsec</a>
   </section>
+  </section>
+
+  <section id="file-mode" class="hidden">
+    <div class="btn-row role-switch" style="margin-bottom:1.25rem;">
+      <button type="button" class="btn-sm active" id="frole-send" data-i18n="file_role_send">Отправить файл</button>
+      <button type="button" class="btn-sm" id="frole-recv" data-i18n="file_role_recv">Получить файл</button>
+    </div>
+
+    <!-- SEND -->
+    <div id="fsend-ui">
+      <div class="field-group">
+        <label for="file-input" data-i18n="label_file">Файл</label>
+        <input type="file" id="file-input">
+        <div class="meta-row"><span id="file-meta"></span></div>
+      </div>
+
+      <div class="field-group">
+        <label for="fpass-input" data-i18n="label_pass">Код доступа</label>
+        <input type="password" id="fpass-input" data-i18n-ph="ph_pass" placeholder="Код или фраза" autocomplete="new-password">
+        <div class="btn-row">
+          <button type="button" class="btn-sm" id="fgen-pin-6">PIN 6</button>
+          <button type="button" class="btn-sm" id="fgen-pin-8">PIN 8</button>
+          <button type="button" class="btn-sm" id="fgen-word-8">Text PIN</button>
+        </div>
+      </div>
+
+      <button type="button" class="btn-primary" id="btn-pair" data-i18n="btn_pair_qr">Сформировать QR спаривания</button>
+      <div id="fsend-error" class="status-msg status-error hidden"></div>
+
+      <div id="pair-output" class="hidden">
+        <div class="qr-frame" id="pair-qr-target"></div>
+        <p id="pair-qr-note" class="status-msg status-info hidden" data-i18n="pair_qr_too_big"></p>
+
+        <textarea id="pair-link-out" readonly rows="3"></textarea>
+        <div class="btn-row">
+          <button type="button" class="btn-sm" id="btn-copy-pairlink"><span id="btn-copy-pairlink-text" data-i18n="btn_copy_link">Копировать ссылку</span></button>
+          <button type="button" class="btn-sm btn-danger" id="btn-fsend-reset" data-i18n="btn_reset_file">Начать заново</button>
+        </div>
+
+        <label for="answer-input" style="margin-top:1rem;" data-i18n="label_answer_paste">Ответный код получателя (w2....)</label>
+        <textarea id="answer-input" rows="3" data-i18n-ph="ph_answer" placeholder="w2...."></textarea>
+        <button type="button" class="btn-primary" id="btn-connect-answer" data-i18n="btn_connect_answer">Подключить и передать</button>
+      </div>
+
+      <div id="fsend-progress-area" class="hidden" style="margin-top:1.25rem;">
+        <div class="progress"><div id="fsend-bar"></div></div>
+        <div class="meta-row"><span id="fsend-status"></span></div>
+      </div>
+    </div>
+
+    <!-- RECEIVE -->
+    <div id="frecv-ui" class="hidden">
+      <p id="frecv-incoming-note" class="status-msg status-info hidden" data-i18n="recv_incoming_note"></p>
+
+      <div class="field-group">
+        <label for="frecv-code-input" data-i18n="label_recv_code">Код доступа к файлу</label>
+        <input type="password" id="frecv-code-input" data-i18n-ph="ph_unlock" placeholder="Введите код" autocomplete="current-password">
+      </div>
+
+      <button type="button" class="btn-primary" id="btn-create-answer" data-i18n="btn_create_answer">Создать ответный код</button>
+      <div id="frecv-error" class="status-msg status-error hidden"></div>
+
+      <div id="frecv-answer-area" class="hidden" style="margin-top:1rem;">
+        <label for="answer-out" data-i18n="label_answer_out">Ответный код — отправьте его отправителю</label>
+        <textarea id="answer-out" readonly rows="3"></textarea>
+        <div class="btn-row">
+          <button type="button" class="btn-sm" id="btn-copy-answer"><span id="btn-copy-answer-text" data-i18n="btn_copy_code">Копировать код</span></button>
+          <button type="button" class="btn-sm btn-danger" id="btn-frecv-reset" data-i18n="btn_reset_file">Начать заново</button>
+        </div>
+      </div>
+
+      <div id="frecv-status" class="status-msg status-info hidden"></div>
+
+      <div id="frecv-progress-area" class="hidden" style="margin-top:1rem;">
+        <div class="meta-row"><span id="frecv-file-meta"></span></div>
+        <div class="progress"><div id="frecv-bar"></div></div>
+      </div>
+
+      <div id="frecv-done-area" class="hidden" style="margin-top:1rem;">
+        <a href="#" download id="btn-download-file" class="btn-primary" data-i18n="btn_download_file">Скачать файл</a>
+        <div class="meta-row"><span id="frecv-done-note" data-i18n="msg_recv_done"></span></div>
+        <button type="button" class="btn-sm btn-danger" id="btn-fpurge" style="width:100%; margin-top:0.75rem;" data-i18n="btn_purge_file">Удалить из памяти</button>
+      </div>
+    </div>
+  </section>
 
   <details class="app-footer">
     <summary class="footer-summary">
@@ -489,6 +621,7 @@
       <p id="footer-p3">
         <strong>Почему сервер ничего не получает:</strong> Зашифрованный пакет передаётся в URL через хэш-фрагмент (после символа <code>#</code>). По стандартам HTTP эта часть URL никогда не отправляется на сервер и не попадает в сетевые логи.
       </p>
+      <p id="footer-p4" data-i18n="footer_p4"></p>
     </div>
   </details>
 </div>
@@ -536,7 +669,47 @@ const I18N_DATA = {
     msg_purged: "Данные уничтожены из памяти.",
     share_title: "QRsec Зашифрованное сообщение",
     share_text: "Ссылка для получения данных:",
-    prompt_copy: "Скопируйте ссылку вручную:"
+    prompt_copy: "Скопируйте ссылку вручную:",
+    tab_text: "Текст",
+    tab_file: "Файл",
+    file_role_send: "Отправить файл",
+    file_role_recv: "Получить файл",
+    label_file: "Файл",
+    btn_pair_qr: "Сформировать QR спаривания",
+    pair_qr_too_big: "QR слишком плотный для надёжного сканирования — используйте ссылку ниже.",
+    btn_copy_link: "Копировать ссылку",
+    btn_reset_file: "Начать заново",
+    label_answer_paste: "Ответный код получателя (w2....)",
+    ph_answer: "Вставьте w2....",
+    btn_connect_answer: "Подключить и передать",
+    status_ice: "Формирование соединения...",
+    status_waiting_answer: "Покажите QR получателю или отправьте ссылку. Вставьте ответный код, когда он его создаст.",
+    status_connecting: "Подключение к получателю...",
+    status_hashing: "Вычисление контрольной суммы (SHA-256)...",
+    status_sending: "Передача файла: {p}%",
+    msg_sent_done: "Файл передан успешно.",
+    label_answer_out: "Ответный код — отправьте его отправителю",
+    btn_copy_code: "Копировать код",
+    recv_incoming_note: "Входящая передача файла. Введите код доступа, создайте ответный код и передайте его отправителю (мессенджер или буфер обмена).",
+    label_recv_code: "Код доступа к файлу",
+    btn_create_answer: "Создать ответный код",
+    status_send_answer_hint: "Отправьте этот код отправителю и дождитесь подключения...",
+    status_connected_wait_file: "Подключено. Ожидание файла...",
+    status_receiving: "Приём файла: {p}%",
+    status_verifying: "Проверка контрольной суммы (SHA-256)...",
+    btn_download_file: "Скачать файл",
+    msg_recv_done: "Файл получен, контрольная сумма совпадает.",
+    btn_purge_file: "Удалить из памяти",
+    msg_file_purged: "Файл удалён из памяти браузера.",
+    err_no_webrtc: "WebRTC не поддерживается этим браузером — обмен файлами недоступен.",
+    err_answer_invalid: "Некорректный ответный код (ожидается w2....).",
+    err_file_required: "Выберите файл и введите код доступа.",
+    err_wrong_code_file: "Неверный код доступа. Начните передачу заново с новым QR спаривания.",
+    err_sha_mismatch: "Контрольная сумма не совпадает — данные повреждены при передаче. Повторите передачу.",
+    err_webrtc_connect: "P2P-соединение не установлено (ограничения NAT). Попробуйте в одной сети или начните заново.",
+    err_no_ice: "Не удалось сформировать ICE-кандидаты — соединение невозможно в текущей среде. Нажмите «Сформировать QR спаривания» ещё раз.",
+    err_no_offer: "Нет входящего запроса на передачу файла. Откройте ссылку или отсканируйте QR от отправителя.",
+    footer_p4: "<strong>Обмен файлами (P2P):</strong> Файлы идут напрямую между устройствами по WebRTC DataChannel (DTLS) и дополнительно шифруются AES-GCM с ключом из кода доступа. Публичный STUN-сервер видит только служебные метаданные соединения, но не данные; сервер хостинга в передаче не участвует."
   },
   en: {
     env_badge: "secure data transfer",
@@ -576,7 +749,47 @@ const I18N_DATA = {
     msg_purged: "Data has been purged from memory.",
     share_title: "QRsec Encrypted Message",
     share_text: "Secure link to decrypt data:",
-    prompt_copy: "Copy the link manually:"
+    prompt_copy: "Copy the link manually:",
+    tab_text: "Text",
+    tab_file: "File",
+    file_role_send: "Send File",
+    file_role_recv: "Receive File",
+    label_file: "File",
+    btn_pair_qr: "Generate Pairing QR",
+    pair_qr_too_big: "QR is too dense to scan reliably — use the link below.",
+    btn_copy_link: "Copy Link",
+    btn_reset_file: "Start Over",
+    label_answer_paste: "Receiver's Response Code (w2....)",
+    ph_answer: "Paste w2....",
+    btn_connect_answer: "Connect & Transfer",
+    status_ice: "Preparing connection...",
+    status_waiting_answer: "Show the QR to the receiver or send them the link. Paste their response code once created.",
+    status_connecting: "Connecting to receiver...",
+    status_hashing: "Computing checksum (SHA-256)...",
+    status_sending: "Sending file: {p}%",
+    msg_sent_done: "File transferred successfully.",
+    label_answer_out: "Response Code — send it to the sender",
+    btn_copy_code: "Copy Code",
+    recv_incoming_note: "Incoming file transfer. Enter the access code, create a response code and pass it to the sender (messenger or clipboard).",
+    label_recv_code: "File Access Code",
+    btn_create_answer: "Create Response Code",
+    status_send_answer_hint: "Send this code to the sender and wait for connection...",
+    status_connected_wait_file: "Connected. Waiting for file...",
+    status_receiving: "Receiving file: {p}%",
+    status_verifying: "Verifying checksum (SHA-256)...",
+    btn_download_file: "Download File",
+    msg_recv_done: "File received, checksum verified.",
+    btn_purge_file: "Purge from Memory",
+    msg_file_purged: "File has been purged from browser memory.",
+    err_no_webrtc: "WebRTC is not supported by this browser — file transfer is unavailable.",
+    err_answer_invalid: "Invalid response code (expected w2....).",
+    err_file_required: "Please choose a file and enter an access code.",
+    err_wrong_code_file: "Wrong access code. Start the transfer over with a new pairing QR.",
+    err_sha_mismatch: "Checksum mismatch — data was corrupted in transit. Please retry.",
+    err_webrtc_connect: "P2P connection failed (NAT restrictions). Try on the same network or start over.",
+    err_no_ice: "Failed to gather ICE candidates — a connection is not possible in the current environment. Click \"Generate Pairing QR\" again.",
+    err_no_offer: "No incoming transfer request. Open the sender's link or scan their QR code.",
+    footer_p4: "<strong>File Transfer (P2P):</strong> Files travel directly between devices over a WebRTC DataChannel (DTLS) and are additionally encrypted with AES-GCM using a key derived from the access code. The public STUN server only sees connection metadata, never data; the hosting server is not involved."
   },
   zh: {
     env_badge: "安全数据传输",
@@ -616,7 +829,47 @@ const I18N_DATA = {
     msg_purged: "数据已从内存中彻底销毁。",
     share_title: "QRsec 加密信息",
     share_text: "用于提取加密数据的链接：",
-    prompt_copy: "请手动复制链接："
+    prompt_copy: "请手动复制链接：",
+    tab_text: "文本",
+    tab_file: "文件",
+    file_role_send: "发送文件",
+    file_role_recv: "接收文件",
+    label_file: "文件",
+    btn_pair_qr: "生成配对二维码",
+    pair_qr_too_big: "二维码密度过高，难以可靠扫描——请使用下方链接。",
+    btn_copy_link: "复制链接",
+    btn_reset_file: "重新开始",
+    label_answer_paste: "接收方的响应码 (w2....)",
+    ph_answer: "粘贴 w2....",
+    btn_connect_answer: "连接并传输",
+    status_ice: "正在准备连接...",
+    status_waiting_answer: "请向接收方展示二维码或发送链接。对方生成响应码后，将其粘贴到此处。",
+    status_connecting: "正在连接接收方...",
+    status_hashing: "正在计算校验和 (SHA-256)...",
+    status_sending: "文件传输中：{p}%",
+    msg_sent_done: "文件已成功发送。",
+    label_answer_out: "响应码——请发送给发送方",
+    btn_copy_code: "复制代码",
+    recv_incoming_note: "正在接收文件。请输入访问密码，生成响应码并通过其他渠道（如即时通讯或剪贴板）告知发送方。",
+    label_recv_code: "文件解密密码",
+    btn_create_answer: "生成响应码",
+    status_send_answer_hint: "请将此代码发送给发送方并等待连接...",
+    status_connected_wait_file: "已连接。正在等待文件...",
+    status_receiving: "接收文件中：{p}%",
+    status_verifying: "正在校验 SHA-256 校验和...",
+    btn_download_file: "下载文件",
+    msg_recv_done: "文件已接收，校验和验证通过。",
+    btn_purge_file: "从内存中销毁",
+    msg_file_purged: "文件已从浏览器内存中彻底清除。",
+    err_no_webrtc: "此浏览器不支持 WebRTC——无法进行文件传输。",
+    err_answer_invalid: "响应码无效（应为 w2.... 格式）。",
+    err_file_required: "请选择文件并输入访问密码。",
+    err_wrong_code_file: "访问密码错误。请使用新的配对二维码重新开始传输。",
+    err_sha_mismatch: "校验和不匹配——数据在传输中损坏，请重试。",
+    err_webrtc_connect: "P2P 连接失败（NAT 限制）。请在同一网络下尝试或重新开始。",
+    err_no_ice: "无法生成 ICE 候选——当前环境下无法建立连接。请再次点击\"生成配对二维码\"。",
+    err_no_offer: "没有收到传输请求。请打开发送方提供的链接或扫描二维码。",
+    footer_p4: "<strong>文件传输 (P2P):</strong> 文件通过 WebRTC DataChannel (DTLS) 在设备之间直接传输，并额外使用由访问密码派生密钥的 AES-GCM 加密。公共 STUN 服务器仅可见连接元数据，无法获取任何数据；托管服务器不参与传输过程。"
   }
 };
 
@@ -1077,6 +1330,526 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) hideSecret();
 });
 window.addEventListener('blur', hideSecret);
+
+/* ==================== FILE TRANSFER MODE (WebRTC P2P) ==================== */
+
+const RTC_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+const F_CHUNK = 32 * 1024; // размер шифруемого блока, байт
+
+const tabTextBtn = document.getElementById('tab-text');
+const tabFileBtn = document.getElementById('tab-file');
+const textModeEl = document.getElementById('text-mode');
+const fileModeEl = document.getElementById('file-mode');
+const froleSendBtn = document.getElementById('frole-send');
+const froleRecvBtn = document.getElementById('frole-recv');
+const fsendUi = document.getElementById('fsend-ui');
+const frecvUi = document.getElementById('frecv-ui');
+
+let capturedOfferSdp = null;
+if (window.location.hash.startsWith('#w1.')) {
+  try {
+    capturedOfferSdp = new TextDecoder().decode(new Uint8Array(B64.decode(window.location.hash.slice(4))));
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  } catch {}
+}
+
+function showMode(mode) {
+  textModeEl.classList.toggle('hidden', mode !== 'text');
+  fileModeEl.classList.toggle('hidden', mode !== 'file');
+  tabTextBtn.classList.toggle('active', mode === 'text');
+  tabFileBtn.classList.toggle('active', mode === 'file');
+}
+
+function showFRole(role) {
+  fsendUi.classList.toggle('hidden', role !== 'send');
+  frecvUi.classList.toggle('hidden', role !== 'recv');
+  froleSendBtn.classList.toggle('active', role === 'send');
+  froleRecvBtn.classList.toggle('active', role === 'recv');
+}
+
+tabTextBtn.onclick = () => showMode('text');
+tabFileBtn.onclick = () => showMode('file');
+froleSendBtn.onclick = () => { resetFTransfer(); showFRole('send'); };
+froleRecvBtn.onclick = () => { resetFTransfer(); showFRole('recv'); };
+
+function fmtSize(n) {
+  if (n >= 1048576) return (n / 1048576).toFixed(2) + ' MB';
+  if (n >= 1024) return (n / 1024).toFixed(1) + ' KB';
+  return n + ' B';
+}
+
+function bytesToHex(u8) {
+  let s = '';
+  for (let i = 0; i < u8.length; i++) s += u8[i].toString(16).padStart(2, '0');
+  return s;
+}
+
+function waitIceGathering(pc, timeoutMs = 10000) {
+  return new Promise(resolve => {
+    if (pc.iceGatheringState === 'complete') return resolve();
+    const started = Date.now();
+    const iv = setInterval(() => {
+      if (pc.iceGatheringState === 'complete' || Date.now() - started > timeoutMs) {
+        clearInterval(iv);
+        resolve();
+      }
+    }, 100);
+  });
+}
+
+function sdpToFragment(prefix, sdp) {
+  return prefix + B64.encode(new TextEncoder().encode(sdp));
+}
+
+function fragmentToSdp(frag, prefix) {
+  if (!frag.startsWith(prefix)) throw new Error('InvalidKeyError');
+  return new TextDecoder().decode(new Uint8Array(B64.decode(frag.slice(prefix.length))));
+}
+
+let fpc = null;
+let fdc = null;
+
+function teardownFpc() {
+  try { if (fpc) fpc.close(); } catch {}
+  fpc = null;
+  fdc = null;
+}
+
+/* ---------- РОЛЬ: ОТПРАВИТЕЛЬ ---------- */
+
+const fileInput = document.getElementById('file-input');
+const fileMeta = document.getElementById('file-meta');
+const fpassInput = document.getElementById('fpass-input');
+const btnPair = document.getElementById('btn-pair');
+const fsendError = document.getElementById('fsend-error');
+const pairOutput = document.getElementById('pair-output');
+const pairQrTarget = document.getElementById('pair-qr-target');
+const pairQrNote = document.getElementById('pair-qr-note');
+const pairLinkOut = document.getElementById('pair-link-out');
+const answerInput = document.getElementById('answer-input');
+const btnConnectAnswer = document.getElementById('btn-connect-answer');
+const fsendProgressArea = document.getElementById('fsend-progress-area');
+const fsendBar = document.getElementById('fsend-bar');
+const fsendStatusEl = document.getElementById('fsend-status');
+
+let fsendFile = null;
+let fsendPass = '';
+let pairUrl = '';
+
+fileInput.addEventListener('change', () => {
+  const f = fileInput.files[0];
+  fileMeta.innerText = f ? `${f.name} — ${fmtSize(f.size)}` : '';
+});
+
+function genFpin(len) {
+  const chars = '0123456789';
+  const arr = new Uint8Array(len);
+  crypto.getRandomValues(arr);
+  fpassInput.type = 'text';
+  return Array.from(arr, b => chars[b % chars.length]).join('');
+}
+
+document.getElementById('fgen-pin-6').onclick = () => { fpassInput.value = genFpin(6); };
+document.getElementById('fgen-pin-8').onclick = () => { fpassInput.value = genFpin(8); };
+document.getElementById('fgen-word-8').onclick = () => {
+  const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+  const arr = new Uint8Array(10);
+  crypto.getRandomValues(arr);
+  fpassInput.type = 'text';
+  fpassInput.value = `${Array.from(arr.slice(0, 5), b => chars[b % chars.length]).join('')}-${Array.from(arr.slice(5, 10), b => chars[b % chars.length]).join('')}`;
+};
+
+function setFsendStatus(msg) { fsendStatusEl.innerText = msg; }
+
+btnPair.onclick = async () => {
+  fsendError.classList.add('hidden');
+  const f = fileInput.files[0];
+  const pass = fpassInput.value;
+  if (!f || !pass) {
+    fsendError.innerText = t('err_file_required');
+    fsendError.classList.remove('hidden');
+    return;
+  }
+  if (window.location.protocol === 'file:') {
+    fsendError.innerText = t('err_file_protocol');
+    fsendError.classList.remove('hidden');
+    return;
+  }
+  if (!window.RTCPeerConnection) {
+    fsendError.innerText = t('err_no_webrtc');
+    fsendError.classList.remove('hidden');
+    return;
+  }
+
+  fsendFile = f;
+  fsendPass = pass;
+  teardownFpc();
+  btnPair.disabled = true;
+  btnPair.innerText = t('status_ice');
+
+  try {
+    fpc = new RTCPeerConnection(RTC_CONFIG);
+    fdc = fpc.createDataChannel('qrsec-file', { ordered: true });
+    fdc.binaryType = 'arraybuffer';
+    fdc.onopen = () => startFsendTransfer();
+    fpc.onconnectionstatechange = () => {
+      if (fpc && (fpc.connectionState === 'failed' || fpc.connectionState === 'disconnected')) {
+        setFsendStatus(t('err_webrtc_connect'));
+      }
+    };
+
+    await fpc.setLocalDescription(await fpc.createOffer());
+    fsendProgressArea.classList.remove('hidden');
+    fsendBar.style.width = '0%';
+    setFsendStatus(t('status_ice'));
+    await waitIceGathering(fpc);
+
+    const cands = (fpc.getIceCandidates && fpc.getIceCandidates()) || [];
+    if (!cands.length) {
+      teardownFpc();
+      pairOutput.classList.add('hidden');
+      fsendError.innerText = t('err_no_ice');
+      fsendError.classList.remove('hidden');
+      return;
+    }
+
+    pairUrl = `${window.location.origin}${window.location.pathname}#` + sdpToFragment('w1.', fpc.localDescription.sdp);
+    pairQrTarget.innerHTML = '';
+    if (pairUrl.length <= 2900) {
+      new QRCode(pairQrTarget, {
+        text: pairUrl,
+        width: 256,
+        height: 256,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.L
+      });
+      pairQrNote.classList.add('hidden');
+    } else {
+      pairQrNote.classList.remove('hidden');
+    }
+    pairLinkOut.value = pairUrl;
+    answerInput.value = '';
+    pairOutput.classList.remove('hidden');
+    setFsendStatus(t('status_waiting_answer'));
+  } catch (err) {
+    fsendError.innerText = err.message || t('err_webrtc_connect');
+    fsendError.classList.remove('hidden');
+  } finally {
+    btnPair.disabled = false;
+    btnPair.innerText = t('btn_pair_qr');
+  }
+};
+
+async function startFsendTransfer() {
+  try {
+    setFsendStatus(t('status_hashing'));
+    const buf = await fsendFile.arrayBuffer();
+    const shaHex = bytesToHex(new Uint8Array(await crypto.subtle.digest('SHA-256', buf)));
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key = await deriveKey(fsendPass, salt);
+
+    fdc.send(JSON.stringify({ t: 'hdr', name: fsendFile.name, size: buf.byteLength, sha256: shaHex, salt: B64.encode(salt.buffer) }));
+
+    let off = 0;
+    while (off < buf.byteLength) {
+      const len = Math.min(F_CHUNK, buf.byteLength - off);
+      const chunk = new Uint8Array(buf, off, len);
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, chunk));
+      const msg = new Uint8Array(12 + ct.byteLength);
+      msg.set(iv, 0);
+      msg.set(ct, 12);
+      fdc.send(msg.buffer);
+      off += len;
+      const pct = Math.floor(off / buf.byteLength * 100);
+      fsendBar.style.width = pct + '%';
+      setFsendStatus(t('status_sending', { p: pct }));
+    }
+
+    fdc.send(JSON.stringify({ t: 'end' }));
+    fsendBar.style.width = '100%';
+    setFsendStatus(t('msg_sent_done'));
+    fsendPass = ''; // стирание кода после передачи
+  } catch (err) {
+    setFsendStatus(err.message || t('err_webrtc_connect'));
+  }
+}
+
+btnConnectAnswer.onclick = async () => {
+  fsendError.classList.add('hidden');
+  const txt = answerInput.value.trim();
+  if (!fpc) return;
+  let sdp;
+  try {
+    sdp = fragmentToSdp(txt, 'w2.');
+  } catch {
+    fsendError.innerText = t('err_answer_invalid');
+    fsendError.classList.remove('hidden');
+    return;
+  }
+  btnConnectAnswer.disabled = true;
+  setFsendStatus(t('status_connecting'));
+  try {
+    await fpc.setRemoteDescription({ type: 'answer', sdp });
+  } catch (err) {
+    fsendError.innerText = t('err_webrtc_connect');
+    fsendError.classList.remove('hidden');
+  } finally {
+    btnConnectAnswer.disabled = false;
+  }
+};
+
+document.getElementById('btn-copy-pairlink').onclick = () => copyToClipboard(pairLinkOut.value, 'btn-copy-pairlink-text');
+document.getElementById('btn-fsend-reset').onclick = resetFTransfer;
+
+/* ---------- РОЛЬ: ПОЛУЧАТЕЛЬ ---------- */
+
+const frecvCodeInput = document.getElementById('frecv-code-input');
+const btnCreateAnswer = document.getElementById('btn-create-answer');
+const frecvError = document.getElementById('frecv-error');
+const frecvIncomingNote = document.getElementById('frecv-incoming-note');
+const frecvAnswerArea = document.getElementById('frecv-answer-area');
+const answerOut = document.getElementById('answer-out');
+const frecvStatusEl = document.getElementById('frecv-status');
+const frecvProgressArea = document.getElementById('frecv-progress-area');
+const frecvBar = document.getElementById('frecv-bar');
+const frecvFileMeta = document.getElementById('frecv-file-meta');
+const frecvDoneArea = document.getElementById('frecv-done-area');
+const btnDownloadFile = document.getElementById('btn-download-file');
+
+let frecvKey = null;
+let frecvName = '';
+let frecvSize = 0;
+let frecvSha = '';
+let frecvChunks = [];
+let frecvGot = 0;
+let frecvChain = Promise.resolve();
+let frecvBlobUrl = null;
+let frecvFailed = false;
+
+function setFrecvStatus(msg) {
+  frecvStatusEl.innerText = msg;
+  frecvStatusEl.classList.remove('hidden');
+}
+
+btnCreateAnswer.onclick = async () => {
+  frecvError.classList.add('hidden');
+  if (!frecvCodeInput.value) return;
+  if (window.location.protocol === 'file:') {
+    frecvError.innerText = t('err_file_protocol');
+    frecvError.classList.remove('hidden');
+    return;
+  }
+  if (!window.RTCPeerConnection) {
+    frecvError.innerText = t('err_no_webrtc');
+    frecvError.classList.remove('hidden');
+    return;
+  }
+  if (!capturedOfferSdp) {
+    frecvError.innerText = t('err_no_offer');
+    frecvError.classList.remove('hidden');
+    return;
+  }
+
+  teardownFpc();
+  btnCreateAnswer.disabled = true;
+  try {
+    fpc = new RTCPeerConnection(RTC_CONFIG);
+    fpc.onconnectionstatechange = () => {
+      if (!fpc) return;
+      if (fpc.connectionState === 'connected') setFrecvStatus(t('status_connected_wait_file'));
+      else if (fpc.connectionState === 'failed' || fpc.connectionState === 'disconnected') {
+        frecvError.innerText = t('err_webrtc_connect');
+        frecvError.classList.remove('hidden');
+      }
+    };
+    fpc.ondatachannel = (e) => wireReceiverChannel(e.channel);
+
+    await fpc.setRemoteDescription({ type: 'offer', sdp: capturedOfferSdp });
+    await fpc.setLocalDescription(await fpc.createAnswer());
+    setFrecvStatus(t('status_ice'));
+    await waitIceGathering(fpc);
+
+    const cands = (fpc.getIceCandidates && fpc.getIceCandidates()) || [];
+    if (!cands.length) {
+      teardownFpc();
+      frecvError.innerText = t('err_no_ice');
+      frecvError.classList.remove('hidden');
+      return;
+    }
+
+    answerOut.value = sdpToFragment('w2.', fpc.localDescription.sdp);
+    frecvAnswerArea.classList.remove('hidden');
+    setFrecvStatus(t('status_send_answer_hint'));
+  } catch (err) {
+    frecvError.innerText = err.message || t('err_webrtc_connect');
+    frecvError.classList.remove('hidden');
+  } finally {
+    btnCreateAnswer.disabled = false;
+  }
+};
+
+function wireReceiverChannel(dc) {
+  dc.binaryType = 'arraybuffer';
+  dc.onmessage = (e) => {
+    if (frecvFailed) return;
+    if (typeof e.data === 'string') {
+      let m;
+      try { m = JSON.parse(e.data); } catch { return; }
+      if (m.t === 'hdr') {
+        frecvChain = frecvChain.then(() => onFrecvHeader(m)).catch(showFrecvFatal);
+      } else if (m.t === 'end') {
+        frecvChain = frecvChain.then(frecvFinalize).catch(showFrecvFatal);
+      }
+    } else {
+      const data = e.data;
+      frecvChain = frecvChain.then(() => processFrecvChunk(data)).catch(showFrecvFatal);
+    }
+  };
+}
+
+async function onFrecvHeader(m) {
+  if (!m || m.t !== 'hdr') return;
+  try {
+    const salt = new Uint8Array(B64.decode(m.salt));
+    frecvKey = await deriveKey(frecvCodeInput.value, salt);
+    frecvName = String(m.name || 'qrsec-file');
+    frecvSize = Number(m.size) || 0;
+    frecvSha = String(m.sha256 || '').toLowerCase();
+    frecvChunks = [];
+    frecvGot = 0;
+    frecvFileMeta.innerText = `${frecvName} — ${fmtSize(frecvSize)}`;
+    frecvProgressArea.classList.remove('hidden');
+    setFrecvStatus(t('status_receiving', { p: 0 }));
+  } catch (err) {
+    throw new Error('WRONGCODE');
+  }
+}
+
+async function processFrecvChunk(data) {
+  if (!frecvKey) return;
+  const u8 = new Uint8Array(data);
+  let pt;
+  try {
+    pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: u8.subarray(0, 12) }, frecvKey, u8.subarray(12));
+  } catch {
+    throw new Error('WRONGCODE');
+  }
+  const bytes = new Uint8Array(pt);
+  frecvChunks.push(bytes);
+  frecvGot += bytes.byteLength;
+  if (frecvSize > 0) setFrecvStatus(t('status_receiving', { p: Math.floor(frecvGot / frecvSize * 100) }));
+}
+
+async function frecvFinalize() {
+  setFrecvStatus(t('status_verifying'));
+  const out = new Uint8Array(frecvSize);
+  let off = 0;
+  for (const c of frecvChunks) {
+    out.set(c, off);
+    off += c.byteLength;
+  }
+  if (off !== frecvSize) throw new Error(t('err_sha_mismatch'));
+  const hex = bytesToHex(new Uint8Array(await crypto.subtle.digest('SHA-256', out)));
+  if (hex !== frecvSha) throw new Error(t('err_sha_mismatch'));
+
+  frecvBlobUrl = URL.createObjectURL(new Blob([out], { type: 'application/octet-stream' }));
+  btnDownloadFile.href = frecvBlobUrl;
+  btnDownloadFile.download = frecvName;
+  frecvDoneArea.classList.remove('hidden');
+  setFrecvStatus(t('msg_recv_done'));
+}
+
+function showFrecvFatal(err) {
+  if (frecvFailed) return;
+  frecvFailed = true;
+  const msg = (err && err.message === 'WRONGCODE') ? t('err_wrong_code_file') : ((err && err.message) || t('err_webrtc_connect'));
+  frecvError.innerText = msg;
+  frecvError.classList.remove('hidden');
+}
+
+document.getElementById('btn-copy-answer').onclick = () => copyToClipboard(answerOut.value, 'btn-copy-answer-text');
+document.getElementById('btn-fpurge').onclick = () => {
+  if (frecvBlobUrl) URL.revokeObjectURL(frecvBlobUrl);
+  frecvBlobUrl = null;
+  frecvChunks = [];
+  frecvKey = null;
+  frecvGot = 0;
+  frecvDoneArea.classList.add('hidden');
+  setFrecvStatus(t('msg_file_purged'));
+};
+document.getElementById('btn-frecv-reset').onclick = resetFTransfer;
+
+/* ---------- ОБЩИЕ ВСПОМОГАТЕЛЬНЫЕ / СБРОС ---------- */
+
+async function copyToClipboard(text, spanId) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    prompt(t('prompt_copy'), text);
+    return;
+  }
+  const span = document.getElementById(spanId);
+  if (span) {
+    const old = span.innerText;
+    span.innerText = t('btn_copied');
+    setTimeout(() => { span.innerText = old; }, 2000);
+  }
+}
+
+function resetFTransfer() {
+  teardownFpc();
+  fsendFile = null;
+  fsendPass = '';
+  pairUrl = '';
+  frecvKey = null;
+  frecvName = '';
+  frecvSize = 0;
+  frecvSha = '';
+  frecvChunks = [];
+  frecvGot = 0;
+  frecvChain = Promise.resolve();
+  frecvFailed = false;
+  if (frecvBlobUrl) { URL.revokeObjectURL(frecvBlobUrl); frecvBlobUrl = null; }
+
+  pairQrTarget.innerHTML = '';
+  pairOutput.classList.add('hidden');
+  answerInput.value = '';
+  fsendProgressArea.classList.add('hidden');
+  fsendBar.style.width = '0%';
+  setFsendStatus('');
+  fsendError.classList.add('hidden');
+
+  frecvAnswerArea.classList.add('hidden');
+  answerOut.value = '';
+  frecvStatusEl.classList.add('hidden');
+  frecvProgressArea.classList.add('hidden');
+  frecvBar.style.width = '0%';
+  frecvDoneArea.classList.add('hidden');
+  frecvError.classList.add('hidden');
+}
+
+/* ---------- ИНИЦИАЛИЗАЦИЯ: входящий offer в URL-фрагменте ---------- */
+
+if (capturedOfferSdp) {
+  showMode('file');
+  showFRole('recv');
+  frecvIncomingNote.classList.remove('hidden');
+}
+
+// Хук для автотестов/автоматизации (только чтение, без секретов)
+window.__qrsecDebug = {
+  get textUrl() { return generatedUrl; },
+  get pairUrl() { return pairUrl; },
+  get pcState() {
+    if (!fpc) return null;
+    const cands = [];
+    try { fpc.getIceCandidates().forEach(c => cands.push((c.type || '?') + '/' + (c.address || 'mDNS'))); } catch {}
+    return { conn: fpc.connectionState, ice: fpc.iceConnectionState, gathering: fpc.iceGatheringState, candidates: cands };
+  },
+  get dcReady() { return fdc ? fdc.readyState : null; }
+};
 
 // Инициализация выбранного языка
 applyLocale();
