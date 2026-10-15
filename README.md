@@ -14,6 +14,14 @@
 
 *Read this in other languages: [Русский](#русский) · [English](#english) · [中文](#中文)*
 
+**Live demo / Живое демо:** https://dee0x21.github.io/QRsec/
+
+### Screenshots / Скриншоты / 截图
+
+| Text mode (текст) | File mode — P2P pairing (файл) |
+| --- | --- |
+| ![Text mode](screenshots/text-mode.png) | ![File mode](screenshots/file-mode.png) |
+
 ---
 
 ## Русский
@@ -92,6 +100,7 @@
 QR/
 ├── index.html      # Разметка, стили и вся логика приложения (монолит)
 ├── qrcode.min.js   # Локальная библиотека генерации QR (MIT)
+├── screenshots/    # Скриншоты для README
 └── README.md       # Документация (RU / EN / ZH)
 
 ```
