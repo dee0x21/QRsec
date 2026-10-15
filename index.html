@@ -33,7 +33,7 @@
 
     ::selection { background: var(--text); color: var(--bg); }
 
-    button:focus-visible, input:focus-visible, textarea:focus-visible {
+    button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible {
       outline: 1px solid var(--text);
       outline-offset: 2px;
     }
@@ -87,11 +87,15 @@
       padding: 0.25rem 0.45rem;
       cursor: pointer;
       letter-spacing: 0.05em;
-      transition: all 0.15s ease;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
     .lang-btn:not(:last-child) {
       border-right: 1px solid var(--border-strong);
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: var(--text);
     }
 
     .lang-btn.active {
@@ -136,10 +140,19 @@
       font-size: 0.95rem;
       padding: 0.75rem;
       outline: none;
+      transition: border-color 0.15s ease;
     }
 
     textarea:focus, input:focus { border-color: var(--text); }
     textarea { resize: vertical; min-height: 80px; }
+
+    textarea[readonly] {
+      color: var(--muted);
+      font-size: 0.72rem;
+      word-break: break-all;
+      min-height: 64px;
+      resize: none;
+    }
 
     .input-with-action {
       position: relative;
@@ -182,9 +195,14 @@
       border: 1px solid var(--border-strong);
     }
 
+    .mode-switch, .role-switch {
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+    }
+
     .btn-sm {
       flex: 1;
-      padding: 0.55rem 0.2rem;
+      padding: 0.55rem 0.4rem;
       font-size: 0.7rem;
       font-family: inherit;
       letter-spacing: 0.08em;
@@ -199,8 +217,10 @@
       justify-content: center;
       gap: 0.4rem;
       text-decoration: none;
+      transition: background 0.15s ease, color 0.15s ease;
     }
     .btn-sm:hover { background: var(--text); color: var(--invert-fg); }
+    .btn-sm.active { background: var(--invert-bg); color: var(--invert-fg); font-weight: 700; }
 
     .btn-primary {
       width: 100%;
@@ -219,21 +239,31 @@
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
+      text-decoration: none;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
     .btn-primary:hover { box-shadow: 4px 4px 0 var(--border-strong); }
     .btn-primary:active { transform: translate(2px, 2px); box-shadow: none; }
-    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; transform: none; }
 
     .btn-danger { color: var(--text); }
     .btn-danger:hover { background: var(--invert-bg); color: var(--invert-fg); }
 
-    #qr-output {
+    #qr-output, #pair-output {
       display: flex;
       flex-direction: column;
       align-items: center;
       margin-top: 1.5rem;
       padding-top: 1.25rem;
       border-top: 1px solid var(--border-strong);
+    }
+
+    #pair-output > textarea,
+    #pair-output > .btn-row,
+    #pair-output > label,
+    #pair-output > .btn-primary,
+    #pair-output > .status-msg {
+      width: 100%;
     }
 
     .qr-frame {
@@ -244,6 +274,11 @@
       align-items: center;
       max-width: 100%;
       box-shadow: 8px 8px 0 var(--border);
+      margin-bottom: 1rem;
+    }
+
+    .qr-frame:empty {
+      display: none;
     }
 
     .qr-frame canvas,
@@ -288,6 +323,7 @@
       font-size: 0.8rem;
       letter-spacing: 0.03em;
       text-align: center;
+      line-height: 1.4;
     }
 
     .status-error { background: var(--invert-bg); color: var(--invert-fg); font-weight: 700; }
@@ -304,6 +340,51 @@
       letter-spacing: 0.05em;
     }
     .nav-link:hover { color: var(--text); }
+
+    input[type="file"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.8rem;
+      padding: 0.55rem;
+      cursor: pointer;
+    }
+
+    input[type="file"]::file-selector-button {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.45rem 0.8rem;
+      cursor: pointer;
+      margin-right: 0.75rem;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+      background: var(--invert-bg);
+      color: var(--invert-fg);
+    }
+
+    .progress {
+      width: 100%;
+      height: 14px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg);
+      margin-top: 0.5rem;
+    }
+
+    .progress > div {
+      height: 100%;
+      width: 0%;
+      background: var(--text);
+      transition: width 0.15s linear;
+    }
 
     .app-footer {
       margin-top: 1.5rem;
@@ -349,47 +430,6 @@
       border: 1px solid var(--border);
     }
 
-    .mode-switch { margin-bottom: 1.25rem; }
-
-    .btn-sm.active { background: var(--invert-bg); color: var(--invert-foreground); }
-
-    input[type="file"] {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border-strong);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.8rem;
-      padding: 0.65rem;
-    }
-
-    input[type="file"]::file-selector-button {
-      background: var(--surface);
-      border: 1px solid var(--border-strong);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 0.45rem 0.8rem;
-      cursor: pointer;
-      margin-right: 0.6rem;
-    }
-
-    input[type="file"]::file-selector-button:hover { background: var(--text); color: var(--invert-foreground); }
-
-    .progress {
-      width: 100%;
-      height: 14px;
-      border: 1px solid var(--border-strong);
-      background: var(--bg);
-      margin-top: 0.75rem;
-    }
-
-    .progress > div { height: 100%; width: 0%; background: var(--text); transition: width 0.2s linear; }
-
-    textarea[readonly] { color: var(--muted); font-size: 0.7rem; word-break: break-all; min-height: 64px; }
-
     .hidden { display: none !important; }
   </style>
 </head>
@@ -421,107 +461,109 @@
     <button type="button" class="btn-sm" id="tab-file" data-i18n="tab_file">Файл</button>
   </div>
 
+  <!-- ==================== TEXT MODE ==================== -->
   <section id="text-mode">
-  <section id="sender-ui">
-    <div class="field-group">
-      <label for="plain-input" data-i18n="label_plain">Данные (UTF-8)</label>
-      <textarea id="plain-input" data-i18n-ph="ph_plain" placeholder="Что шифруем?"></textarea>
-      <div class="meta-row">
-        <span id="bytes-counter">0 / 1024 байт</span>
-        <span id="qr-hint" data-i18n="qr_hint_empty">QR: внесите данные</span>
-      </div>
-    </div>
-
-    <div class="field-group">
-      <label for="pass-input" data-i18n="label_pass">Код доступа</label>
-      <div class="input-with-action">
-        <input type="password" id="pass-input" data-i18n-ph="ph_pass" placeholder="Код или фраза" autocomplete="new-password">
-        <button type="button" class="btn-toggle-eye" id="toggle-pass-btn" title="Показать/скрыть">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-        </button>
-      </div>
-      <div class="btn-row">
-        <button type="button" class="btn-sm" id="gen-pin-6">PIN 6</button>
-        <button type="button" class="btn-sm" id="gen-pin-8">PIN 8</button>
-        <button type="button" class="btn-sm" id="gen-word-8">Text PIN</button>
-      </div>
-    </div>
-
-    <button type="button" class="btn-primary" id="btn-build" data-i18n="btn_build">Сформировать QR</button>
-
-    <div id="sender-error" class="status-msg status-error hidden"></div>
-
-    <div id="qr-output" class="hidden">
-      <div class="qr-frame" id="qr-target"></div>
-      
-      <div class="btn-row" style="width: 100%; margin-top: 1rem;">
-        <button type="button" class="btn-sm" id="btn-download-qr">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          <span data-i18n="btn_download_qr">Скачать QR</span>
-        </button>
-        <button type="button" class="btn-sm" id="btn-share-link">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="18" cy="5" r="3"></circle>
-            <circle cx="6" cy="12" r="3"></circle>
-            <circle cx="18" cy="19" r="3"></circle>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-          </svg>
-          <span id="btn-share-text" data-i18n="btn_share_link">Поделиться ссылкой</span>
-        </button>
+    <section id="sender-ui">
+      <div class="field-group">
+        <label for="plain-input" data-i18n="label_plain">Данные (UTF-8)</label>
+        <textarea id="plain-input" data-i18n-ph="ph_plain" placeholder="Что шифруем?"></textarea>
+        <div class="meta-row">
+          <span id="bytes-counter">0 / 1024 байт</span>
+          <span id="qr-hint" data-i18n="qr_hint_empty">QR: внесите данные</span>
+        </div>
       </div>
 
-      <div class="meta-row" style="width:100%; margin-top:0.75rem;">
-        <span id="timer-sender">Сброс через: 60 с</span>
+      <div class="field-group">
+        <label for="pass-input" data-i18n="label_pass">Код доступа</label>
+        <div class="input-with-action">
+          <input type="password" id="pass-input" data-i18n-ph="ph_pass" placeholder="Код или фраза" autocomplete="new-password">
+          <button type="button" class="btn-toggle-eye" id="toggle-pass-btn" title="Показать/скрыть">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-sm" id="gen-pin-6">PIN 6</button>
+          <button type="button" class="btn-sm" id="gen-pin-8">PIN 8</button>
+          <button type="button" class="btn-sm" id="gen-word-8">Text PIN</button>
+        </div>
       </div>
-    </div>
+
+      <button type="button" class="btn-primary" id="btn-build" data-i18n="btn_build">Сформировать QR</button>
+
+      <div id="sender-error" class="status-msg status-error hidden"></div>
+
+      <div id="qr-output" class="hidden">
+        <div class="qr-frame" id="qr-target"></div>
+        
+        <div class="btn-row" style="width: 100%; margin-top: 0;">
+          <button type="button" class="btn-sm" id="btn-download-qr">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span data-i18n="btn_download_qr">Скачать QR</span>
+          </button>
+          <button type="button" class="btn-sm" id="btn-share-link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+            <span id="btn-share-text" data-i18n="btn_share_link">Поделиться ссылкой</span>
+          </button>
+        </div>
+
+        <div class="meta-row" style="width:100%; margin-top:0.75rem;">
+          <span id="timer-sender">Сброс через: 60 с</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="receiver-ui" class="hidden">
+      <div class="field-group">
+        <label for="unlock-code" data-i18n="label_unlock">Код доступа к данным</label>
+        <div class="input-with-action">
+          <input type="password" id="unlock-code" data-i18n-ph="ph_unlock" placeholder="Введите код" autocomplete="current-password">
+          <button type="button" class="btn-toggle-eye" id="toggle-unlock-btn" title="Показать/скрыть">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="button" class="btn-primary" id="btn-decrypt" data-i18n="btn_decrypt">Расшифровать</button>
+
+      <div id="receiver-msg" class="status-msg hidden"></div>
+
+      <div id="reveal-area" class="field-group hidden" style="margin-top:1.25rem;">
+        <label data-i18n="label_hold">Удерживайте для просмотра (Tap & Hold)</label>
+        <div class="tap-box" id="secret-box" data-i18n="tap_to_view">Нажмите и удерживайте</div>
+        <div class="btn-row" style="margin-top:0.75rem;">
+          <button type="button" class="btn-sm" id="btn-copy-secret">
+            <span id="btn-copy-text" data-i18n="btn_copy">Копировать в буфер</span>
+          </button>
+          <button type="button" class="btn-sm btn-danger" id="btn-purge" data-i18n="btn_purge">Удалить сейчас</button>
+        </div>
+        <div class="meta-row" style="margin-top:0.5rem;">
+          <span id="timer-receiver">Уничтожение через: 30 с</span>
+        </div>
+      </div>
+
+      <a href="javascript:void(0)" class="nav-link" id="btn-switch-to-sender" data-i18n="btn_switch_sender">Создать свой защищенный QRsec</a>
+    </section>
   </section>
 
-  <section id="receiver-ui" class="hidden">
-    <div class="field-group">
-      <label for="unlock-code" data-i18n="label_unlock">Код доступа к данным</label>
-      <div class="input-with-action">
-        <input type="password" id="unlock-code" data-i18n-ph="ph_unlock" placeholder="Введите код" autocomplete="current-password">
-        <button type="button" class="btn-toggle-eye" id="toggle-unlock-btn" title="Показать/скрыть">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <button type="button" class="btn-primary" id="btn-decrypt" data-i18n="btn_decrypt">Расшифровать</button>
-
-    <div id="receiver-msg" class="status-msg hidden"></div>
-
-    <div id="reveal-area" class="field-group hidden" style="margin-top:1.25rem;">
-      <label data-i18n="label_hold">Удерживайте для просмотра (Tap & Hold)</label>
-      <div class="tap-box" id="secret-box" data-i18n="tap_to_view">Нажмите и удерживайте</div>
-      <div class="btn-row" style="margin-top:0.75rem;">
-        <button type="button" class="btn-sm" id="btn-copy-secret">
-          <span id="btn-copy-text" data-i18n="btn_copy">Копировать в буфер</span>
-        </button>
-        <button type="button" class="btn-sm btn-danger" id="btn-purge" data-i18n="btn_purge">Удалить сейчас</button>
-      </div>
-      <div class="meta-row" style="margin-top:0.5rem;">
-        <span id="timer-receiver">Уничтожение через: 30 с</span>
-      </div>
-    </div>
-
-    <a href="javascript:void(0)" class="nav-link" id="btn-switch-to-sender" data-i18n="btn_switch_sender">Создать свой защищенный QRsec</a>
-  </section>
-  </section>
-
+  <!-- ==================== FILE MODE ==================== -->
   <section id="file-mode" class="hidden">
-    <div class="btn-row role-switch" style="margin-bottom:1.25rem;">
+    <div class="btn-row role-switch">
       <button type="button" class="btn-sm active" id="frole-send" data-i18n="file_role_send">Отправить файл</button>
       <button type="button" class="btn-sm" id="frole-recv" data-i18n="file_role_recv">Получить файл</button>
     </div>
@@ -536,7 +578,15 @@
 
       <div class="field-group">
         <label for="fpass-input" data-i18n="label_pass">Код доступа</label>
-        <input type="password" id="fpass-input" data-i18n-ph="ph_pass" placeholder="Код или фраза" autocomplete="new-password">
+        <div class="input-with-action">
+          <input type="password" id="fpass-input" data-i18n-ph="ph_pass" placeholder="Код или фраза" autocomplete="new-password">
+          <button type="button" class="btn-toggle-eye" id="toggle-fpass-btn" title="Показать/скрыть">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
         <div class="btn-row">
           <button type="button" class="btn-sm" id="fgen-pin-6">PIN 6</button>
           <button type="button" class="btn-sm" id="fgen-pin-8">PIN 8</button>
@@ -549,7 +599,7 @@
 
       <div id="pair-output" class="hidden">
         <div class="qr-frame" id="pair-qr-target"></div>
-        <p id="pair-qr-note" class="status-msg status-info hidden" data-i18n="pair_qr_too_big"></p>
+        <p id="pair-qr-note" class="status-msg status-info hidden" style="margin-top:0; margin-bottom:1rem;" data-i18n="pair_qr_too_big"></p>
 
         <textarea id="pair-link-out" readonly rows="3"></textarea>
         <div class="btn-row">
@@ -557,9 +607,9 @@
           <button type="button" class="btn-sm btn-danger" id="btn-fsend-reset" data-i18n="btn_reset_file">Начать заново</button>
         </div>
 
-        <label for="answer-input" style="margin-top:1rem;" data-i18n="label_answer_paste">Ответный код получателя (w2....)</label>
+        <label for="answer-input" style="margin-top:1.25rem;" data-i18n="label_answer_paste">Ответный код получателя (w2....)</label>
         <textarea id="answer-input" rows="3" data-i18n-ph="ph_answer" placeholder="w2...."></textarea>
-        <button type="button" class="btn-primary" id="btn-connect-answer" data-i18n="btn_connect_answer">Подключить и передать</button>
+        <button type="button" class="btn-primary" id="btn-connect-answer" style="margin-top:0.5rem;" data-i18n="btn_connect_answer">Подключить и передать</button>
       </div>
 
       <div id="fsend-progress-area" class="hidden" style="margin-top:1.25rem;">
@@ -570,17 +620,30 @@
 
     <!-- RECEIVE -->
     <div id="frecv-ui" class="hidden">
-      <p id="frecv-incoming-note" class="status-msg status-info hidden" data-i18n="recv_incoming_note"></p>
+      <p id="frecv-incoming-note" class="status-msg status-info hidden" style="margin-top:0; margin-bottom:1.25rem;" data-i18n="recv_incoming_note"></p>
+
+      <div class="field-group" id="frecv-manual-offer-group">
+        <label for="frecv-offer-input" data-i18n="label_offer_paste">Ссылка или код отправителя (#w1....)</label>
+        <textarea id="frecv-offer-input" rows="2" data-i18n-ph="ph_offer" placeholder="Вставьте ссылку или w1...."></textarea>
+      </div>
 
       <div class="field-group">
         <label for="frecv-code-input" data-i18n="label_recv_code">Код доступа к файлу</label>
-        <input type="password" id="frecv-code-input" data-i18n-ph="ph_unlock" placeholder="Введите код" autocomplete="current-password">
+        <div class="input-with-action">
+          <input type="password" id="frecv-code-input" data-i18n-ph="ph_unlock" placeholder="Введите код" autocomplete="current-password">
+          <button type="button" class="btn-toggle-eye" id="toggle-frecv-btn" title="Показать/скрыть">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
       </div>
 
       <button type="button" class="btn-primary" id="btn-create-answer" data-i18n="btn_create_answer">Создать ответный код</button>
       <div id="frecv-error" class="status-msg status-error hidden"></div>
 
-      <div id="frecv-answer-area" class="hidden" style="margin-top:1rem;">
+      <div id="frecv-answer-area" class="hidden" style="margin-top:1.25rem;">
         <label for="answer-out" data-i18n="label_answer_out">Ответный код — отправьте его отправителю</label>
         <textarea id="answer-out" readonly rows="3"></textarea>
         <div class="btn-row">
@@ -599,7 +662,7 @@
       <div id="frecv-done-area" class="hidden" style="margin-top:1rem;">
         <a href="#" download id="btn-download-file" class="btn-primary" data-i18n="btn_download_file">Скачать файл</a>
         <div class="meta-row"><span id="frecv-done-note" data-i18n="msg_recv_done"></span></div>
-        <button type="button" class="btn-sm btn-danger" id="btn-fpurge" style="width:100%; margin-top:0.75rem;" data-i18n="btn_purge_file">Удалить из памяти</button>
+        <button type="button" class="btn-sm btn-danger" id="btn-fpurge" style="width:100%; margin-top:0.75rem; border:1px solid var(--border-strong);" data-i18n="btn_purge_file">Удалить из памяти</button>
       </div>
     </div>
   </section>
@@ -612,16 +675,10 @@
       </svg>
     </summary>
     <div class="footer-content">
-      <p id="footer-p1">
-        <strong>Zero-Knowledge & Client-Side:</strong> Сервер не хранит и не видит ваши секреты. Все операции происходят исключительно внутри браузера через аппаратный Web Crypto API.
-      </p>
-      <p id="footer-p2">
-        <strong>Сквозное шифрование:</strong> Ключ формируется функцией PBKDF2 (SHA-256, 600&nbsp;000 итераций) с криптографической солью, а данные шифруются по стандарту AES-GCM (256 бит).
-      </p>
-      <p id="footer-p3">
-        <strong>Почему сервер ничего не получает:</strong> Зашифрованный пакет передаётся в URL через хэш-фрагмент (после символа <code>#</code>). По стандартам HTTP эта часть URL никогда не отправляется на сервер и не попадает в сетевые логи.
-      </p>
-      <p id="footer-p4" data-i18n="footer_p4"></p>
+      <p id="footer-p1"></p>
+      <p id="footer-p2"></p>
+      <p id="footer-p3"></p>
+      <p id="footer-p4"></p>
     </div>
   </details>
 </div>
@@ -661,6 +718,7 @@ const I18N_DATA = {
     footer_p1: "<strong>Zero-Knowledge & Client-Side:</strong> Сервер не хранит и не видит ваши секреты. Все операции происходят исключительно внутри браузера через аппаратный Web Crypto API.",
     footer_p2: "<strong>Сквозное шифрование:</strong> Ключ формируется функцией PBKDF2 (SHA-256, 600&nbsp;000 итераций) с криптографической солью, а данные шифруются по стандарту AES-GCM (256 бит).",
     footer_p3: "<strong>Почему сервер ничего не получает:</strong> Зашифрованный пакет передаётся в URL через хэш-фрагмент (после символа <code>#</code>). По стандартам HTTP эта часть URL никогда не отправляется на сервер и не попадает в сетевые логи.",
+    footer_p4: "<strong>Обмен файлами (P2P):</strong> Файлы идут напрямую между устройствами по WebRTC DataChannel (DTLS) и дополнительно шифруются AES-GCM с ключом из кода доступа. Публичный STUN-сервер видит только служебные метаданные соединения, но не данные; сервер хостинга в передаче не участвует.",
     err_empty: "Укажите данные и код доступа.",
     err_crypto_api: "Ошибка: Web Crypto API доступен только в безопасном контексте (HTTPS или localhost).",
     err_file_protocol: "Внимание: файл открыт локально (file://). Смартфон не сможет открыть этот URL. Запустите приложение через локальный веб-сервер (http://...) или загрузите на хостинг.",
@@ -688,6 +746,8 @@ const I18N_DATA = {
     status_hashing: "Вычисление контрольной суммы (SHA-256)...",
     status_sending: "Передача файла: {p}%",
     msg_sent_done: "Файл передан успешно.",
+    label_offer_paste: "Ссылка или код отправителя (#w1....)",
+    ph_offer: "Вставьте ссылку или код w1....",
     label_answer_out: "Ответный код — отправьте его отправителю",
     btn_copy_code: "Копировать код",
     recv_incoming_note: "Входящая передача файла. Введите код доступа, создайте ответный код и передайте его отправителю (мессенджер или буфер обмена).",
@@ -704,12 +764,12 @@ const I18N_DATA = {
     err_no_webrtc: "WebRTC не поддерживается этим браузером — обмен файлами недоступен.",
     err_answer_invalid: "Некорректный ответный код (ожидается w2....).",
     err_file_required: "Выберите файл и введите код доступа.",
+    err_code_required: "Введите код доступа к файлу.",
     err_wrong_code_file: "Неверный код доступа. Начните передачу заново с новым QR спаривания.",
     err_sha_mismatch: "Контрольная сумма не совпадает — данные повреждены при передаче. Повторите передачу.",
     err_webrtc_connect: "P2P-соединение не установлено (ограничения NAT). Попробуйте в одной сети или начните заново.",
     err_no_ice: "Не удалось сформировать ICE-кандидаты — соединение невозможно в текущей среде. Нажмите «Сформировать QR спаривания» ещё раз.",
-    err_no_offer: "Нет входящего запроса на передачу файла. Откройте ссылку или отсканируйте QR от отправителя.",
-    footer_p4: "<strong>Обмен файлами (P2P):</strong> Файлы идут напрямую между устройствами по WebRTC DataChannel (DTLS) и дополнительно шифруются AES-GCM с ключом из кода доступа. Публичный STUN-сервер видит только служебные метаданные соединения, но не данные; сервер хостинга в передаче не участвует."
+    err_no_offer: "Нет входящего запроса. Откройте ссылку от отправителя или вставьте её в поле выше."
   },
   en: {
     env_badge: "secure data transfer",
@@ -741,6 +801,7 @@ const I18N_DATA = {
     footer_p1: "<strong>Zero-Knowledge & Client-Side:</strong> The server never sees or stores your secrets. All operations run solely inside your browser using the native Web Crypto API.",
     footer_p2: "<strong>End-to-End Encryption:</strong> The key is derived using PBKDF2 (SHA-256, 600,000 iterations) with cryptographic salt, and data is protected with AES-GCM (256-bit).",
     footer_p3: "<strong>Why the server receives nothing:</strong> The encrypted payload is passed in the URL via a hash fragment (after <code>#</code>). Per HTTP standards, this is never sent over the wire or logged by servers.",
+    footer_p4: "<strong>File Transfer (P2P):</strong> Files travel directly between devices over a WebRTC DataChannel (DTLS) and are additionally encrypted with AES-GCM using a key derived from the access code. The public STUN server only sees connection metadata, never data; the hosting server is not involved.",
     err_empty: "Please provide both data and access code.",
     err_crypto_api: "Error: Web Crypto API is only available in secure contexts (HTTPS or localhost).",
     err_file_protocol: "Warning: File opened locally (file://). Phones cannot reach this address. Please serve over HTTP(S).",
@@ -768,6 +829,8 @@ const I18N_DATA = {
     status_hashing: "Computing checksum (SHA-256)...",
     status_sending: "Sending file: {p}%",
     msg_sent_done: "File transferred successfully.",
+    label_offer_paste: "Sender's Link or Code (#w1....)",
+    ph_offer: "Paste link or w1.... code",
     label_answer_out: "Response Code — send it to the sender",
     btn_copy_code: "Copy Code",
     recv_incoming_note: "Incoming file transfer. Enter the access code, create a response code and pass it to the sender (messenger or clipboard).",
@@ -784,12 +847,12 @@ const I18N_DATA = {
     err_no_webrtc: "WebRTC is not supported by this browser — file transfer is unavailable.",
     err_answer_invalid: "Invalid response code (expected w2....).",
     err_file_required: "Please choose a file and enter an access code.",
+    err_code_required: "Please enter the file access code.",
     err_wrong_code_file: "Wrong access code. Start the transfer over with a new pairing QR.",
     err_sha_mismatch: "Checksum mismatch — data was corrupted in transit. Please retry.",
     err_webrtc_connect: "P2P connection failed (NAT restrictions). Try on the same network or start over.",
     err_no_ice: "Failed to gather ICE candidates — a connection is not possible in the current environment. Click \"Generate Pairing QR\" again.",
-    err_no_offer: "No incoming transfer request. Open the sender's link or scan their QR code.",
-    footer_p4: "<strong>File Transfer (P2P):</strong> Files travel directly between devices over a WebRTC DataChannel (DTLS) and are additionally encrypted with AES-GCM using a key derived from the access code. The public STUN server only sees connection metadata, never data; the hosting server is not involved."
+    err_no_offer: "No incoming transfer request. Open the sender's link or paste it in the field above."
   },
   zh: {
     env_badge: "安全数据传输",
@@ -821,6 +884,7 @@ const I18N_DATA = {
     footer_p1: "<strong>零知识与纯客户端架构 (Zero-Knowledge):</strong> 服务器不存储也不会获取您的任何私密数据。所有密码学运算均在浏览器内通过原生 Web Crypto API 硬件加速完成。",
     footer_p2: "<strong>端到端高强度加密:</strong> 密钥采用 PBKDF2（SHA-256，600,000 次加盐哈希迭代）生成，正文采用标准的 AES-GCM (256-bit) 对称加密。",
     footer_p3: "<strong>为什么服务器无法感知:</strong> 密文仅存放在 URL 的哈希片段（即 <code>#</code> 之后）中。遵循 HTTP 规范，此部分绝不会上传至服务器或进入任何网络访问日志。",
+    footer_p4: "<strong>文件传输 (P2P):</strong> 文件通过 WebRTC DataChannel (DTLS) 在设备之间直接传输，并额外使用由访问密码派生密钥的 AES-GCM 加密。公共 STUN 服务器仅可见连接元数据，无法获取任何数据；托管服务器不参与传输过程。",
     err_empty: "请同时输入数据和访问密码。",
     err_crypto_api: "错误：Web Crypto API 仅在安全上下文（HTTPS 或 localhost）中可用。",
     err_file_protocol: "提示：当前为本地直接打开 (file://)。移动端无法访问此链接，请通过本地 Web 服务器或 HTTPS 托管使用。",
@@ -848,6 +912,8 @@ const I18N_DATA = {
     status_hashing: "正在计算校验和 (SHA-256)...",
     status_sending: "文件传输中：{p}%",
     msg_sent_done: "文件已成功发送。",
+    label_offer_paste: "发送方的链接或代码 (#w1....)",
+    ph_offer: "粘贴链接或 w1....",
     label_answer_out: "响应码——请发送给发送方",
     btn_copy_code: "复制代码",
     recv_incoming_note: "正在接收文件。请输入访问密码，生成响应码并通过其他渠道（如即时通讯或剪贴板）告知发送方。",
@@ -864,12 +930,12 @@ const I18N_DATA = {
     err_no_webrtc: "此浏览器不支持 WebRTC——无法进行文件传输。",
     err_answer_invalid: "响应码无效（应为 w2.... 格式）。",
     err_file_required: "请选择文件并输入访问密码。",
+    err_code_required: "请输入文件访问密码。",
     err_wrong_code_file: "访问密码错误。请使用新的配对二维码重新开始传输。",
     err_sha_mismatch: "校验和不匹配——数据在传输中损坏，请重试。",
     err_webrtc_connect: "P2P 连接失败（NAT 限制）。请在同一网络下尝试或重新开始。",
     err_no_ice: "无法生成 ICE 候选——当前环境下无法建立连接。请再次点击\"生成配对二维码\"。",
-    err_no_offer: "没有收到传输请求。请打开发送方提供的链接或扫描二维码。",
-    footer_p4: "<strong>文件传输 (P2P):</strong> 文件通过 WebRTC DataChannel (DTLS) 在设备之间直接传输，并额外使用由访问密码派生密钥的 AES-GCM 加密。公共 STUN 服务器仅可见连接元数据，无法获取任何数据；托管服务器不参与传输过程。"
+    err_no_offer: "没有收到传输请求。请打开发送方提供的链接或在上方输入框中粘贴。"
   }
 };
 
@@ -907,6 +973,7 @@ function applyLocale() {
   document.getElementById('footer-p1').innerHTML = t('footer_p1');
   document.getElementById('footer-p2').innerHTML = t('footer_p2');
   document.getElementById('footer-p3').innerHTML = t('footer_p3');
+  document.getElementById('footer-p4').innerHTML = t('footer_p4');
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
@@ -931,7 +998,9 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
 
 const B64 = {
   encode: (buf) => {
-    const bin = String.fromCharCode(...new Uint8Array(buf));
+    const bytes = new Uint8Array(buf);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
     return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   },
   decode: (str) => {
@@ -943,6 +1012,22 @@ const B64 = {
     return bytes.buffer;
   }
 };
+
+// Генерация случайной строки без modulo bias (rejection sampling)
+function randomString(length, alphabet) {
+  const maxValid = 256 - (256 % alphabet.length);
+  let out = '';
+  const buf = new Uint8Array(length * 2);
+  while (out.length < length) {
+    crypto.getRandomValues(buf);
+    for (let i = 0; i < buf.length && out.length < length; i++) {
+      if (buf[i] < maxValid) {
+        out += alphabet[buf[i] % alphabet.length];
+      }
+    }
+  }
+  return out;
+}
 
 async function deriveKey(passphrase, salt) {
   const enc = new TextEncoder();
@@ -1089,24 +1174,20 @@ function updateBytesCounter() {
 
 plainInput.addEventListener('input', updateBytesCounter);
 
-function genCryptoPin(len) {
-  const chars = '0123456789';
-  const arr = new Uint8Array(len);
-  crypto.getRandomValues(arr);
-  passInput.type = 'text';
-  return Array.from(arr, b => chars[b % chars.length]).join('');
+function fillPin(inputEl, len) {
+  inputEl.type = 'text';
+  inputEl.value = randomString(len, '0123456789');
 }
 
-document.getElementById('gen-pin-6').onclick = () => { passInput.value = genCryptoPin(6); };
-document.getElementById('gen-pin-8').onclick = () => { passInput.value = genCryptoPin(8); };
-
-document.getElementById('gen-word-8').onclick = () => {
+function fillWordPin(inputEl) {
   const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
-  const arr = new Uint8Array(10);
-  crypto.getRandomValues(arr);
-  passInput.type = 'text';
-  passInput.value = `${Array.from(arr.slice(0, 5), b => chars[b % chars.length]).join('')}-${Array.from(arr.slice(5, 10), b => chars[b % chars.length]).join('')}`;
-};
+  inputEl.type = 'text';
+  inputEl.value = `${randomString(5, chars)}-${randomString(5, chars)}`;
+}
+
+document.getElementById('gen-pin-6').onclick = () => fillPin(passInput, 6);
+document.getElementById('gen-pin-8').onclick = () => fillPin(passInput, 8);
+document.getElementById('gen-word-8').onclick = () => fillWordPin(passInput);
 
 btnBuild.onclick = async () => {
   senderError.classList.add('hidden');
@@ -1229,7 +1310,14 @@ btnSwitchToSender.onclick = () => {
   try {
     history.replaceState(null, '', window.location.pathname + window.location.search);
   } catch {}
+  clearInterval(receiverTimerId);
+  activeSecret = null;
   capturedPayload = null;
+  unlockCode.disabled = false;
+  unlockCode.value = '';
+  btnDecrypt.classList.remove('hidden');
+  revealArea.classList.add('hidden');
+  receiverMsg.classList.add('hidden');
   receiverUi.classList.add('hidden');
   senderUi.classList.remove('hidden');
 };
@@ -1335,6 +1423,8 @@ window.addEventListener('blur', hideSecret);
 
 const RTC_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 const F_CHUNK = 32 * 1024; // размер шифруемого блока, байт
+const BUFFER_HIGH_WATERMARK = 512 * 1024; // 512 KB порог буфера отправки
+const BUFFER_LOW_WATERMARK = 128 * 1024;  // 128 KB порог возобновления
 
 const tabTextBtn = document.getElementById('tab-text');
 const tabFileBtn = document.getElementById('tab-file');
@@ -1344,6 +1434,9 @@ const froleSendBtn = document.getElementById('frole-send');
 const froleRecvBtn = document.getElementById('frole-recv');
 const fsendUi = document.getElementById('fsend-ui');
 const frecvUi = document.getElementById('frecv-ui');
+
+const toggleFpassBtn = document.getElementById('toggle-fpass-btn');
+const toggleFrecvBtn = document.getElementById('toggle-frecv-btn');
 
 let capturedOfferSdp = null;
 if (window.location.hash.startsWith('#w1.')) {
@@ -1384,35 +1477,57 @@ function bytesToHex(u8) {
   return s;
 }
 
-function waitIceGathering(pc, timeoutMs = 10000) {
+function waitIceGathering(pc, timeoutMs = 8000) {
   return new Promise(resolve => {
     if (pc.iceGatheringState === 'complete') return resolve();
-    const started = Date.now();
-    const iv = setInterval(() => {
-      if (pc.iceGatheringState === 'complete' || Date.now() - started > timeoutMs) {
-        clearInterval(iv);
-        resolve();
-      }
-    }, 100);
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      pc.removeEventListener('icegatheringstatechange', onState);
+      pc.removeEventListener('icecandidate', onCand);
+      resolve();
+    };
+    const onState = () => {
+      if (pc.iceGatheringState === 'complete') finish();
+    };
+    const onCand = (e) => {
+      if (!e.candidate) finish();
+    };
+    pc.addEventListener('icegatheringstatechange', onState);
+    pc.addEventListener('icecandidate', onCand);
+    setTimeout(finish, timeoutMs);
   });
+}
+
+function hasIceCandidates(sdp) {
+  return typeof sdp === 'string' && (sdp.includes('a=candidate:') || sdp.includes('a=candidate '));
 }
 
 function sdpToFragment(prefix, sdp) {
   return prefix + B64.encode(new TextEncoder().encode(sdp));
 }
 
-function fragmentToSdp(frag, prefix) {
-  if (!frag.startsWith(prefix)) throw new Error('InvalidKeyError');
-  return new TextDecoder().decode(new Uint8Array(B64.decode(frag.slice(prefix.length))));
+function fragmentToSdp(inputStr, prefix) {
+  let clean = inputStr.trim();
+  const hashIdx = clean.indexOf('#' + prefix);
+  if (hashIdx !== -1) {
+    clean = clean.slice(hashIdx + 1);
+  }
+  if (!clean.startsWith(prefix)) throw new Error('InvalidKeyError');
+  return new TextDecoder().decode(new Uint8Array(B64.decode(clean.slice(prefix.length))));
 }
 
 let fpc = null;
 let fdc = null;
+let gatheredCandidatesDebug = [];
 
 function teardownFpc() {
+  try { if (fdc) fdc.close(); } catch {}
   try { if (fpc) fpc.close(); } catch {}
   fpc = null;
   fdc = null;
+  gatheredCandidatesDebug = [];
 }
 
 /* ---------- РОЛЬ: ОТПРАВИТЕЛЬ ---------- */
@@ -1432,6 +1547,8 @@ const fsendProgressArea = document.getElementById('fsend-progress-area');
 const fsendBar = document.getElementById('fsend-bar');
 const fsendStatusEl = document.getElementById('fsend-status');
 
+toggleFpassBtn.onclick = () => toggleFieldVisibility(fpassInput);
+
 let fsendFile = null;
 let fsendPass = '';
 let pairUrl = '';
@@ -1441,23 +1558,9 @@ fileInput.addEventListener('change', () => {
   fileMeta.innerText = f ? `${f.name} — ${fmtSize(f.size)}` : '';
 });
 
-function genFpin(len) {
-  const chars = '0123456789';
-  const arr = new Uint8Array(len);
-  crypto.getRandomValues(arr);
-  fpassInput.type = 'text';
-  return Array.from(arr, b => chars[b % chars.length]).join('');
-}
-
-document.getElementById('fgen-pin-6').onclick = () => { fpassInput.value = genFpin(6); };
-document.getElementById('fgen-pin-8').onclick = () => { fpassInput.value = genFpin(8); };
-document.getElementById('fgen-word-8').onclick = () => {
-  const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
-  const arr = new Uint8Array(10);
-  crypto.getRandomValues(arr);
-  fpassInput.type = 'text';
-  fpassInput.value = `${Array.from(arr.slice(0, 5), b => chars[b % chars.length]).join('')}-${Array.from(arr.slice(5, 10), b => chars[b % chars.length]).join('')}`;
-};
+document.getElementById('fgen-pin-6').onclick = () => fillPin(fpassInput, 6);
+document.getElementById('fgen-pin-8').onclick = () => fillPin(fpassInput, 8);
+document.getElementById('fgen-word-8').onclick = () => fillWordPin(fpassInput);
 
 function setFsendStatus(msg) { fsendStatusEl.innerText = msg; }
 
@@ -1489,8 +1592,13 @@ btnPair.onclick = async () => {
 
   try {
     fpc = new RTCPeerConnection(RTC_CONFIG);
+    fpc.addEventListener('icecandidate', (e) => {
+      if (e.candidate) gatheredCandidatesDebug.push((e.candidate.type || '?') + '/' + (e.candidate.address || 'mDNS'));
+    });
+
     fdc = fpc.createDataChannel('qrsec-file', { ordered: true });
     fdc.binaryType = 'arraybuffer';
+    fdc.bufferedAmountLowThreshold = BUFFER_LOW_WATERMARK;
     fdc.onopen = () => startFsendTransfer();
     fpc.onconnectionstatechange = () => {
       if (fpc && (fpc.connectionState === 'failed' || fpc.connectionState === 'disconnected')) {
@@ -1504,8 +1612,8 @@ btnPair.onclick = async () => {
     setFsendStatus(t('status_ice'));
     await waitIceGathering(fpc);
 
-    const cands = (fpc.getIceCandidates && fpc.getIceCandidates()) || [];
-    if (!cands.length) {
+    const localSdp = fpc.localDescription ? fpc.localDescription.sdp : '';
+    if (!hasIceCandidates(localSdp)) {
       teardownFpc();
       pairOutput.classList.add('hidden');
       fsendError.innerText = t('err_no_ice');
@@ -1513,7 +1621,7 @@ btnPair.onclick = async () => {
       return;
     }
 
-    pairUrl = `${window.location.origin}${window.location.pathname}#` + sdpToFragment('w1.', fpc.localDescription.sdp);
+    pairUrl = `${window.location.origin}${window.location.pathname}#` + sdpToFragment('w1.', localSdp);
     pairQrTarget.innerHTML = '';
     if (pairUrl.length <= 2900) {
       new QRCode(pairQrTarget, {
@@ -1541,6 +1649,29 @@ btnPair.onclick = async () => {
   }
 };
 
+function waitForChannelDrain(dc) {
+  return new Promise((resolve, reject) => {
+    if (dc.readyState !== 'open') return reject(new Error(t('err_webrtc_connect')));
+    if (dc.bufferedAmount <= BUFFER_HIGH_WATERMARK) return resolve();
+    const onLow = () => {
+      cleanup();
+      resolve();
+    };
+    const onClose = () => {
+      cleanup();
+      reject(new Error(t('err_webrtc_connect')));
+    };
+    const cleanup = () => {
+      dc.removeEventListener('bufferedamountlow', onLow);
+      dc.removeEventListener('close', onClose);
+      dc.removeEventListener('error', onClose);
+    };
+    dc.addEventListener('bufferedamountlow', onLow);
+    dc.addEventListener('close', onClose);
+    dc.addEventListener('error', onClose);
+  });
+}
+
 async function startFsendTransfer() {
   try {
     setFsendStatus(t('status_hashing'));
@@ -1549,10 +1680,27 @@ async function startFsendTransfer() {
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const key = await deriveKey(fsendPass, salt);
 
-    fdc.send(JSON.stringify({ t: 'hdr', name: fsendFile.name, size: buf.byteLength, sha256: shaHex, salt: B64.encode(salt.buffer) }));
+    // Зашифрованный проверочный тег в заголовке для мгновенной проверки пароля
+    const authIv = crypto.getRandomValues(new Uint8Array(12));
+    const authCt = new Uint8Array(await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: authIv },
+      key,
+      new TextEncoder().encode('QRSEC_OK')
+    ));
+
+    fdc.send(JSON.stringify({
+      t: 'hdr',
+      name: fsendFile.name,
+      size: buf.byteLength,
+      sha256: shaHex,
+      salt: B64.encode(salt.buffer),
+      authIv: B64.encode(authIv.buffer),
+      authCt: B64.encode(authCt.buffer)
+    }));
 
     let off = 0;
     while (off < buf.byteLength) {
+      await waitForChannelDrain(fdc);
       const len = Math.min(F_CHUNK, buf.byteLength - off);
       const chunk = new Uint8Array(buf, off, len);
       const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -1562,7 +1710,7 @@ async function startFsendTransfer() {
       msg.set(ct, 12);
       fdc.send(msg.buffer);
       off += len;
-      const pct = Math.floor(off / buf.byteLength * 100);
+      const pct = buf.byteLength > 0 ? Math.floor((off / buf.byteLength) * 100) : 100;
       fsendBar.style.width = pct + '%';
       setFsendStatus(t('status_sending', { p: pct }));
     }
@@ -1605,6 +1753,8 @@ document.getElementById('btn-fsend-reset').onclick = resetFTransfer;
 
 /* ---------- РОЛЬ: ПОЛУЧАТЕЛЬ ---------- */
 
+const frecvOfferInput = document.getElementById('frecv-offer-input');
+const frecvManualOfferGroup = document.getElementById('frecv-manual-offer-group');
 const frecvCodeInput = document.getElementById('frecv-code-input');
 const btnCreateAnswer = document.getElementById('btn-create-answer');
 const frecvError = document.getElementById('frecv-error');
@@ -1617,6 +1767,8 @@ const frecvBar = document.getElementById('frecv-bar');
 const frecvFileMeta = document.getElementById('frecv-file-meta');
 const frecvDoneArea = document.getElementById('frecv-done-area');
 const btnDownloadFile = document.getElementById('btn-download-file');
+
+toggleFrecvBtn.onclick = () => toggleFieldVisibility(frecvCodeInput);
 
 let frecvKey = null;
 let frecvName = '';
@@ -1635,7 +1787,11 @@ function setFrecvStatus(msg) {
 
 btnCreateAnswer.onclick = async () => {
   frecvError.classList.add('hidden');
-  if (!frecvCodeInput.value) return;
+  if (!frecvCodeInput.value) {
+    frecvError.innerText = t('err_code_required');
+    frecvError.classList.remove('hidden');
+    return;
+  }
   if (window.location.protocol === 'file:') {
     frecvError.innerText = t('err_file_protocol');
     frecvError.classList.remove('hidden');
@@ -1646,40 +1802,61 @@ btnCreateAnswer.onclick = async () => {
     frecvError.classList.remove('hidden');
     return;
   }
-  if (!capturedOfferSdp) {
+
+  let offerSdp = capturedOfferSdp;
+  if (!offerSdp && frecvOfferInput.value.trim()) {
+    try {
+      offerSdp = fragmentToSdp(frecvOfferInput.value.trim(), 'w1.');
+    } catch {
+      frecvError.innerText = t('err_no_offer');
+      frecvError.classList.remove('hidden');
+      return;
+    }
+  }
+
+  if (!offerSdp) {
     frecvError.innerText = t('err_no_offer');
     frecvError.classList.remove('hidden');
     return;
   }
 
   teardownFpc();
+  frecvFailed = false;
+  frecvChain = Promise.resolve();
   btnCreateAnswer.disabled = true;
+
   try {
     fpc = new RTCPeerConnection(RTC_CONFIG);
+    fpc.addEventListener('icecandidate', (e) => {
+      if (e.candidate) gatheredCandidatesDebug.push((e.candidate.type || '?') + '/' + (e.candidate.address || 'mDNS'));
+    });
+
     fpc.onconnectionstatechange = () => {
       if (!fpc) return;
       if (fpc.connectionState === 'connected') setFrecvStatus(t('status_connected_wait_file'));
-      else if (fpc.connectionState === 'failed' || fpc.connectionState === 'disconnected') {
-        frecvError.innerText = t('err_webrtc_connect');
-        frecvError.classList.remove('hidden');
+      else if ((fpc.connectionState === 'failed' || fpc.connectionState === 'disconnected') && frecvDoneArea.classList.contains('hidden')) { // не показываем ошибку после успешного приёма
+        if (!frecvFailed) {
+          frecvError.innerText = t('err_webrtc_connect');
+          frecvError.classList.remove('hidden');
+        }
       }
     };
     fpc.ondatachannel = (e) => wireReceiverChannel(e.channel);
 
-    await fpc.setRemoteDescription({ type: 'offer', sdp: capturedOfferSdp });
+    await fpc.setRemoteDescription({ type: 'offer', sdp: offerSdp });
     await fpc.setLocalDescription(await fpc.createAnswer());
     setFrecvStatus(t('status_ice'));
     await waitIceGathering(fpc);
 
-    const cands = (fpc.getIceCandidates && fpc.getIceCandidates()) || [];
-    if (!cands.length) {
+    const localSdp = fpc.localDescription ? fpc.localDescription.sdp : '';
+    if (!hasIceCandidates(localSdp)) {
       teardownFpc();
       frecvError.innerText = t('err_no_ice');
       frecvError.classList.remove('hidden');
       return;
     }
 
-    answerOut.value = sdpToFragment('w2.', fpc.localDescription.sdp);
+    answerOut.value = sdpToFragment('w2.', localSdp);
     frecvAnswerArea.classList.remove('hidden');
     setFrecvStatus(t('status_send_answer_hint'));
   } catch (err) {
@@ -1714,15 +1891,23 @@ async function onFrecvHeader(m) {
   try {
     const salt = new Uint8Array(B64.decode(m.salt));
     frecvKey = await deriveKey(frecvCodeInput.value, salt);
+
+    if (m.authIv && m.authCt) {
+      const authIv = new Uint8Array(B64.decode(m.authIv));
+      const authCt = new Uint8Array(B64.decode(m.authCt));
+      await crypto.subtle.decrypt({ name: 'AES-GCM', iv: authIv }, frecvKey, authCt);
+    }
+
     frecvName = String(m.name || 'qrsec-file');
     frecvSize = Number(m.size) || 0;
     frecvSha = String(m.sha256 || '').toLowerCase();
     frecvChunks = [];
     frecvGot = 0;
     frecvFileMeta.innerText = `${frecvName} — ${fmtSize(frecvSize)}`;
+    frecvBar.style.width = '0%';
     frecvProgressArea.classList.remove('hidden');
     setFrecvStatus(t('status_receiving', { p: 0 }));
-  } catch (err) {
+  } catch {
     throw new Error('WRONGCODE');
   }
 }
@@ -1739,7 +1924,11 @@ async function processFrecvChunk(data) {
   const bytes = new Uint8Array(pt);
   frecvChunks.push(bytes);
   frecvGot += bytes.byteLength;
-  if (frecvSize > 0) setFrecvStatus(t('status_receiving', { p: Math.floor(frecvGot / frecvSize * 100) }));
+  if (frecvSize > 0) {
+    const pct = Math.floor((frecvGot / frecvSize) * 100);
+    frecvBar.style.width = pct + '%';
+    setFrecvStatus(t('status_receiving', { p: pct }));
+  }
 }
 
 async function frecvFinalize() {
@@ -1754,6 +1943,7 @@ async function frecvFinalize() {
   const hex = bytesToHex(new Uint8Array(await crypto.subtle.digest('SHA-256', out)));
   if (hex !== frecvSha) throw new Error(t('err_sha_mismatch'));
 
+  frecvBar.style.width = '100%';
   frecvBlobUrl = URL.createObjectURL(new Blob([out], { type: 'application/octet-stream' }));
   btnDownloadFile.href = frecvBlobUrl;
   btnDownloadFile.download = frecvName;
@@ -1764,6 +1954,7 @@ async function frecvFinalize() {
 function showFrecvFatal(err) {
   if (frecvFailed) return;
   frecvFailed = true;
+  teardownFpc();
   const msg = (err && err.message === 'WRONGCODE') ? t('err_wrong_code_file') : ((err && err.message) || t('err_webrtc_connect'));
   frecvError.innerText = msg;
   frecvError.classList.remove('hidden');
@@ -1777,6 +1968,7 @@ document.getElementById('btn-fpurge').onclick = () => {
   frecvKey = null;
   frecvGot = 0;
   frecvDoneArea.classList.add('hidden');
+  frecvProgressArea.classList.add('hidden');
   setFrecvStatus(t('msg_file_purged'));
 };
 document.getElementById('btn-frecv-reset').onclick = resetFTransfer;
@@ -1836,6 +2028,7 @@ if (capturedOfferSdp) {
   showMode('file');
   showFRole('recv');
   frecvIncomingNote.classList.remove('hidden');
+  frecvManualOfferGroup.classList.add('hidden');
 }
 
 // Хук для автотестов/автоматизации (только чтение, без секретов)
@@ -1844,9 +2037,12 @@ window.__qrsecDebug = {
   get pairUrl() { return pairUrl; },
   get pcState() {
     if (!fpc) return null;
-    const cands = [];
-    try { fpc.getIceCandidates().forEach(c => cands.push((c.type || '?') + '/' + (c.address || 'mDNS'))); } catch {}
-    return { conn: fpc.connectionState, ice: fpc.iceConnectionState, gathering: fpc.iceGatheringState, candidates: cands };
+    return {
+      conn: fpc.connectionState,
+      ice: fpc.iceConnectionState,
+      gathering: fpc.iceGatheringState,
+      candidates: gatheredCandidatesDebug.slice()
+    };
   },
   get dcReady() { return fdc ? fdc.readyState : null; }
 };
