@@ -27,12 +27,15 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Stage site files
+        run: |
+          mkdir site
+          cp index.html qrcode.min.js site/
+
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: |
-            index.html
-            qrcode.min.js
+          path: site
 
       - name: Deploy to GitHub Pages
         id: deployment
